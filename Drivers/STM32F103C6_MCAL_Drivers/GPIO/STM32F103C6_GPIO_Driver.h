@@ -9,15 +9,15 @@
 #define STM32F103C6_GPIO_DRIVER_H_
 
 
-//------------------------------------
-//             Includes
-//------------------------------------
+							/*************************************/
+							/*          Include Section          */
+							/*************************************/
 #include "../STM32F103X6.h"
 
 
-//------------------------------------
-//             Typdef section
-//------------------------------------
+							/*************************************/
+							/*          Typedef Section          */
+							/*************************************/
 
 // @ref GPIO_PINS_DEFINE
 
@@ -116,14 +116,15 @@ typedef enum
 }RETURN_t;
 
 
-
+								/*************************************/
+								/*       Function Declaration        */
+								/*************************************/
 
 /**================================================================
  * @Fn                 	- GPIO_INIT
  * @brief				- Initialize the GPIOx PINy according to the specified paramater in PinConfig
- * @param [in]			- myPin pointer to a GPIO_PinConfig_t structure that contatin
- * 						  the configuration information for the specified PORT & PIN.
- * @param [in]			- GPIOx where x can Be (A .... E)
+ * @param [in]			- myPin : Pointer to a GPIO_PinConfig_t structure that contatin
+ * 						    	  The configuration Information for the specified PORT & PIN.
  * @retval				- NONE
  * Note					- STM32F103C6 MCU has GPIO A,B,C,D,E,F,G
  * 						  but LQFP48 Package has only A,B and PART OF C,D
@@ -133,8 +134,8 @@ void GPIO_INIT(GPIO_PinConfig_t *myPin);
 /**================================================================
  * @Fn                 	- GPIO_READ_PIN
  * @brief				- Read from specific Pin in port
- * @param [in]			- GPIOx where x can Be (A .... E)]
- * @param [in] 			- pin number in port
+ * @param [in]			- myPin : Pointer to a GPIO_PinConfig_t structure that contatin
+ * 						    	  The configuration Information for the specified PORT & PIN I Need to Read From.
  * @retval				- NONE
  * Note					- NONE
 */
@@ -143,7 +144,7 @@ uint8_t GPIO_READ_PIN(GPIO_PinConfig_t *myPin);
 /**================================================================
  * @Fn                 	- GPIO_READ_PORT
  * @brief				- Read From specific port
- * @param [in]			- GPIOx where x can Be (A .... E)]
+ * @param [in]			- GPIOx : Where x can Be (A .... E)]
  * @retval				- NONE
  * Note					- NONE
 */
@@ -152,16 +153,19 @@ uint16_t GPIO_READ_PORT(GPIO_Periphral *GPIOx);
 /**================================================================
  * @Fn                 	- GPIO_WRITE_PIN
  * @brief				- Write logic on pin @specific port
- * @param [in]			- GPIOx where x can Be (A .... E)]
+ * @param [in]			- myPin : Pointer to a GPIO_PinConfig_t structure that contatin
+ * 						    	  The configuration Information for the specified PORT & PIN I Write on it.
+ * @param [in]          - Mode is Enum Object Have 2 Mode (HIGH For Logic 1) and (LOW for Logic 0)
  * @retval				- NONE
  * Note					- NONE
 */
 void GPIO_WRITE_PIN(GPIO_PinConfig_t *myPin, Logic_t Mode);
 
 /**================================================================
- * @Fn                 	- GPIO_deINIT
- * @brief				- reset all GPIO Register
- * @param [in]			- GPIOx where x can Be (A .... E)]
+ * @Fn                 	- GPIO_WRITE_PORT
+ * @brief				- Write on Specific Port
+ * @param [in]			- GPIOx : Where x can Be (A .... E)] that I need to Write
+ * @param [in]          - value : Is the value that i will write on port
  * @retval				- NONE
  * Note					- NONE
 */
@@ -170,18 +174,18 @@ void GPIO_WRITE_PORT(GPIO_Periphral *GPIOx, uint32_t value);
 /**================================================================
  * @Fn                 	- GPIO_TOGGLE_PIN
  * @brief				- Toggle specific pin in Port
- * @param [in]			- GPIOx where x can Be (A .... E)]
- * @param [in] 			- pin number in port
+ * @param [in]			- myPin : Pointer to a GPIO_PinConfig_t structure that contatin
+ * 						    	  The configuration Information for the specified PORT & PIN I Toggle it.
  * @retval				- NONE
  * Note					- NONE
 */
 void GPIO_TOGGLE_PIN(GPIO_PinConfig_t *myPin);
 
-
 /**================================================================
- * @Fn                 	- GPIO_deINIT
- * @brief				- reset all GPIO Register
- * @param [in]			- GPIOx where x can Be (A .... E)]
+ * @Fn                 	- GPIO_LOCK_PIN
+ * @brief				- Lock pin in port cant change to be o/p or i/p
+ * @param [in]			- myPin : pointer to a GPIO_PinConfig_t structure that contatin
+ * 						  		  the configuration information for the specified PORT & PIN I locked it.
  * @retval				- NONE
  * Note					- NONE
 */
@@ -190,7 +194,7 @@ RETURN_t GPIO_LOCK_PIN(GPIO_PinConfig_t *myPin);
 /**================================================================
  * @Fn                 	- GPIO_deINIT
  * @brief				- reset all GPIO Register
- * @param [in]			- GPIOx where x can Be (A .... E)]
+ * @param [in]			- GPIOx : where x can Be (A .... E)]
  * @retval				- NONE
  * Note					- NONE
 */

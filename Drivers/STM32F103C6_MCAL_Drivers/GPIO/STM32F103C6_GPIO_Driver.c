@@ -7,6 +7,9 @@
 
 #include "STM32F103C6_GPIO_Driver.h"
 
+							/*************************************/
+							/*       Function Definition         */
+							/*************************************/
 
 uint8_t GetPos(PINy_t PinNumber)
 {
