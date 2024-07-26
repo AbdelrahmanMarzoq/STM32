@@ -9,15 +9,16 @@
 /**
  * 							How To Use this Driver
  *
- * First you must define Your Mode 8bit or bit by defining this Macros In Your Application Layer
- * (_LCD_8BIT_MODE) Macro for 8bit mode
- * (_LCD_4BIT_MODE) Macro for 4bit mode
+ * First you must define Your Mode 8bit or 4bit be Enable these Macros in Driver
+ * (_LCD_8BIT_MODE) Macro for 8bit mode    Line 88
+ * (_LCD_4BIT_MODE) Macro for 4bit mode	   Line 87
  *
  * Must Take Object from struct -> (LCD_4bit_t) or struct -> (LCD_8bit_t)
- * Implement it By your target Pin and Port
+ * Implement it By your target Pin and Port.
  *
- * You should first Call Funtion (LCD_4bit_init) or (LCD_8bit_init) before Calling any Function
+ * You should first Call Funtion (LCD_4bit_init) or (LCD_8bit_init) before Calling any Function.
  *
+ * This Driver Can`t Print Floating number.
  */
 
 
@@ -197,12 +198,23 @@ void LCD_8bit_Print_Char(LCD_8bit_t *LCD, uint8_t data);
 void LCD_8bit_Print(LCD_8bit_t *LCD, uint8_t *data);
 
 /**================================================================
+ * @Fn                 	- LCD_8bit_Print_Number
+ * @brief				- Print Integer Number
+ * @param [in]			- LCD     : pointer to LCD_8bit_t structure that Contain
+ * 						  			Configuration for RS and EN and Data Wires.
+ * @param [in]			- value   : is the value that need to print on LCD
+ * @retval				- NONE
+ * Note					- NONE
+*/
+void LCD_8bit_Print_Number(LCD_8bit_t *LCD, int value);
+
+/**================================================================
  * @Fn                 	- LCD_8bit_Print_Custom_char
  * @brief				- Print Custom Char that didn`t have asci Code in CGROM
  * @param [in]			- LCD     : pointer to LCD_8bit_t structure that Contain
  * 						  			Configuration for RS and EN and Data Wires.
  * @retval				- NONE
- * Note					- NONE
+ * Note					- To Avoid Warning in sending String Just Casting it to uint8_t
 */
 void LCD_8bit_Print_Custom_char(LCD_8bit_t *LCD, const uint8_t c_char[], uint8_t Pos);
 

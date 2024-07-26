@@ -21,6 +21,7 @@
 #include "../HAL_Drivers/Keypad/Keypad.h"
 
 
+
 Keypad_t key1;
 
 LCD_8bit_t lcd2;
@@ -159,7 +160,7 @@ int main(void)
 	GPIO_test();
 
 	uint8_t Character[8] ={ 0b00000, 0b00000, 0b01010, 0b11111, 0b11111, 0b01110, 0b00100, 0b00000 };
-	LCD_8bit_Print(&lcd2, "Hello World!");
+	LCD_8bit_Print(&lcd2, (uint8_t *)"Hello World!");
 
 //	LCD_8bit_Set_Cursor(&lcd2, 2, 10);
 //	LCD_8bit_Print_Custom_char(&lcd2, Character, 2);
@@ -169,12 +170,18 @@ int main(void)
 //	myWait(1000);
 //	LCD_8bit_Display_ON(&lcd2);
 	LCD_8bit_Set_Cursor(&lcd2, 2, 10);
-
+	char x = 5;
 	while(1)
 	{
 
 		uint8_t press = Key_get(&key1);
-		if(press)   LCD_8bit_Print_Char(&lcd2, press);
+		if (press != ' ')
+		{
+			LCD_8bit_Print_Char(&lcd2, press);
+		}
+		LCD_8bit_Set_Cursor(&lcd2, 2, 14);
+
+		LCD_8bit_Print_Number(&lcd2, 6.5);
 
 		GPIO_TOGGLE_PIN(&LED);
 		myWait(10);

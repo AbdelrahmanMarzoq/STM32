@@ -16,7 +16,7 @@
 							/*	   Static Function Declaration   */
 							/*************************************/
 
-static void memset(uint8_t *str, uint8_t data, uint8_t Number);
+
 static void myWait(volatile int ms);
 
 #ifdef _LCD_4BIT_MODE
@@ -230,7 +230,7 @@ void LCD_8bit_init(LCD_8bit_t *LCD)
 	// Send command to set cursor at row 1 column 1
 	LCD_8bit_Command(LCD, _LCD_RETURN_HOME);
 	// Send command to Display on and Blink cursor on
-	LCD_8bit_Command(LCD, _LCD_DISPLAY_ON | _LCD_CURSOR_ON);
+	LCD_8bit_Command(LCD, _LCD_UNDERLINE_CURSOR_ON);
 	// Send command to set cursor increamenet toward right after writing without shift display
 	LCD_8bit_Command(LCD, _LCD_INC_CURSOR_SHIFT_OFF);
 	// Send command that i ready to recieve data so i make the AC (Address counter) to First address in DDRAM
@@ -283,6 +283,14 @@ void LCD_8bit_Print_Char(LCD_8bit_t *LCD, uint8_t data){
 void LCD_8bit_Print(LCD_8bit_t *LCD, uint8_t *data){
 	while(*data) LCD_8bit_Print_Char(LCD, *data++);
 }
+
+void LCD_8bit_Print_Number(LCD_8bit_t *LCD, int value)
+{
+	uint8_t str[10] = {0};
+	sprintf(str,"%i",value);
+	LCD_8bit_Print(LCD, str);
+}
+
 
 
 void LCD_8bit_Print_Custom_char(LCD_8bit_t *LCD, const uint8_t c_char[], uint8_t Pos)
@@ -341,37 +349,10 @@ void LCD_8bit_Clear(LCD_8bit_t *LCD)
 
 #endif
 
-
-
-void Convert_Byte_To_String(const uint8_t value, uint8_t *str)
-{
-	memset(str,'\0', 4);
-	sprintf(str,"%i",(char)value);
-}
-
-void Convert_Short_To_String(const uint16_t value, uint8_t *str)
-{
-	memset(str,'\0', 6);
-	sprintf(str,"%i",(short)value);
-}
-
-void Convert_int_To_String(const uint32_t value, uint8_t *str)
-{
-	memset(str,'\0', 11);
-	sprintf(str,"%i",(int)value);
-}
-
-
-
 static void myWait(volatile int ms)
 {
 	for (volatile int i = 0; i < ms; i++) for (volatile int j = 0; j < 255; j++);
 
-}
-
-static void memset(uint8_t *str, uint8_t data, uint8_t Number)
-{
-	while(Number--) *str++ = data;
 }
 
 

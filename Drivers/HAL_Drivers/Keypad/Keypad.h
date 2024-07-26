@@ -5,6 +5,19 @@
  *      Author: Abdelrhman Marzoq
  */
 
+/**
+ * To Customize This Driver for your Keypad i*j Just Justify these Macros
+ * Define KEYPAD_ROW_ i
+ * Define KEYPAD_COL_ j
+ *
+ * Must Take Object from struct -> (Keypad_t)
+ * Implement it By your target Pin and Port
+ *
+ * You should first Call Funtion (Key_Init) before Calling any Function
+ */
+
+
+
 #ifndef KEYPAD_KEYPAD_H_
 #define KEYPAD_KEYPAD_H_
 
@@ -56,7 +69,7 @@ void Key_Init(Keypad_t *Keypad, const uint8_t D_char[KEYPAD_ROW_][KEYPAD_COL_]);
  * @retval				- return Char the you pressed on Keypad
  * Note					- NONE
 */
-uint8_t Key_get(const Keypad_t *Keypad);
+uint8_t Key_get(Keypad_t *Keypad);
 
 
 #endif /* KEYPAD_KEYPAD_H_ */
