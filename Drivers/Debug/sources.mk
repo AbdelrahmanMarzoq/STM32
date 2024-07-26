@@ -19,6 +19,7 @@ OBJCOPY_BIN :=
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
+HAL_Drivers/7seg \
 HAL_Drivers/Keypad \
 HAL_Drivers/LCD \
 STM32F103C6_MCAL_Drivers/GPIO \

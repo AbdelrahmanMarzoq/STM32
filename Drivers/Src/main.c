@@ -19,6 +19,7 @@
 
 #include "../HAL_Drivers/LCD/LCD.h"
 #include "../HAL_Drivers/Keypad/Keypad.h"
+#include "../HAL_Drivers/7seg/SevenSegment.h"
 
 
 
@@ -27,6 +28,8 @@ Keypad_t key1;
 LCD_8bit_t lcd2;
 
 GPIO_PinConfig_t LED;
+_7Segment_t segm;
+
 
 
 static void myWait(volatile int ms)
@@ -35,6 +38,31 @@ static void myWait(volatile int ms)
 	{
 		for (volatile int j = 0; j < 255; j++);
 	}
+}
+
+void segm_init()
+{
+	segm.A.GPIOx = GPIOB;
+	segm.A.GPIO_PinNumber = GPIO_PIN9;
+
+	segm.B.GPIOx = GPIOB;
+	segm.B.GPIO_PinNumber = GPIO_PIN8;
+
+	segm.C.GPIOx = GPIOB;
+	segm.C.GPIO_PinNumber = GPIO_PIN7;
+
+	segm.D.GPIOx = GPIOB;
+	segm.D.GPIO_PinNumber = GPIO_PIN15;
+
+	segm.E.GPIOx = GPIOB;
+	segm.E.GPIO_PinNumber = GPIO_PIN14;
+
+	segm.F.GPIOx = GPIOB;
+	segm.F.GPIO_PinNumber = GPIO_PIN13;
+
+	segm.G.GPIOx = GPIOB;
+	segm.G.GPIO_PinNumber = GPIO_PIN12;
+
 }
 
 void GPIO_test()
@@ -151,16 +179,18 @@ int main(void)
 	clock_init();
 	LCD_init();
 	KEY_init();
+	segm_init();
 	const uint8_t Char[KEYPAD_ROW_][KEYPAD_COL_] = {{'7', '8', '9', '/'},
 													{'4', '5', '6', '*'},
 													{'1', '2', '3', '-'},
 													{'#', '0', '=', '+'}};
 	Key_Init(&key1, Char);
 	LCD_8bit_init(&lcd2);
+	SevenSegment_init(&segm);
 	GPIO_test();
 
 	uint8_t Character[8] ={ 0b00000, 0b00000, 0b01010, 0b11111, 0b11111, 0b01110, 0b00100, 0b00000 };
-	LCD_8bit_Print(&lcd2, (uint8_t *)"Hello World!");
+	//LCD_8bit_Print(&lcd2, (uint8_t *)"Hello World!");
 
 //	LCD_8bit_Set_Cursor(&lcd2, 2, 10);
 //	LCD_8bit_Print_Custom_char(&lcd2, Character, 2);
@@ -169,19 +199,17 @@ int main(void)
 //	LCD_8bit_Display_OFF(&lcd2);
 //	myWait(1000);
 //	LCD_8bit_Display_ON(&lcd2);
-	LCD_8bit_Set_Cursor(&lcd2, 2, 10);
-	char x = 5;
 	while(1)
 	{
-
 		uint8_t press = Key_get(&key1);
+
+
 		if (press != ' ')
 		{
+			SevenSegment_Print(&segm, press);
 			LCD_8bit_Print_Char(&lcd2, press);
 		}
-		LCD_8bit_Set_Cursor(&lcd2, 2, 14);
 
-		LCD_8bit_Print_Number(&lcd2, 6.5);
 
 		GPIO_TOGGLE_PIN(&LED);
 		myWait(10);
