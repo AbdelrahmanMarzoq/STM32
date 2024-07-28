@@ -9,36 +9,37 @@
 #define STM32F103X6_H_
 
 
-//------------------------------------
-//             Includes
-//------------------------------------
+							/*******************************************/
+							/*            Include Section              */
+							/*******************************************/
 #include "stdlib.h"
 #include "stdio.h"
 #include <stdint.h>
 
-
-
-//------------------------------------
-//  Base addresses for Memories
-//------------------------------------
+							/*******************************************/
+							/*      Base addresses for Memories        */
+							/*******************************************/
 
 #define FLASH_MEMORY_BASE				 0x08000000UL
 #define SYSTEM_MEMORY_BASE 				 0x1FFFF000UL
 #define SRAM_MEMORY_BASE       			 0x20000000UL
 
 #define PERIPHRALS_BASE         		 0x20000000UL
-#define INTERNAL_PERIPHRALS_BASE         0xE0000000UL
+#define INTERNAL_PERIPHRALS_BASE         0xE0000000UL   // Internal CortexM3
 
-//------------------------------------
-//  Base addresses for AHB Periphrals
-//------------------------------------
+
+
+
+							/*******************************************/
+							/*     Base addresses for AHB Periphrals   */
+							/*******************************************/
 
 #define RCC_BASE				 		 (0x40021000UL)
 
+							/*******************************************/
+							/*    Base addresses for APB2 Periphrals   */
+							/*******************************************/
 
-//------------------------------------
-//  Base addresses for APB2 Periphrals
-//------------------------------------
 
 //            GPIO PORTS
 // GPIO A&B Fully included in LQFP48
@@ -58,9 +59,9 @@
 //            AFIO
 #define AFIO_BASE 						 (0x40010000UL)
 
-//-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-//       Peripheral register : RCC
-//-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+							/*******************************************/
+							/*         Peripheral register : RCC       */
+							/*******************************************/
 typedef struct
 {
 	volatile uint32_t CR;
@@ -76,10 +77,9 @@ typedef struct
 }RCC_Periphral;
 
 
-
-//-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-//       Peripheral register : GPIO
-//-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+							/*******************************************/
+							/*         Peripheral register : GPIO       */
+							/*******************************************/
 typedef struct
 {
 	volatile uint32_t CRL;
@@ -92,24 +92,24 @@ typedef struct
 
 }GPIO_Periphral;
 
-//-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-//       Peripheral register : AFIO
-//-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+
+
+							/*******************************************/
+							/*         Peripheral register : AFIO     */
+							/*******************************************/
 typedef struct
 {
 	volatile uint32_t EVCR;
 	volatile uint32_t MAPR;
-	volatile uint32_t EXTICR1;
-	volatile uint32_t EXTICR2;
-	volatile uint32_t EXTICR3;
-	volatile uint32_t EXTICR4;
+	volatile uint32_t EXTICR[4];
 	volatile uint32_t RESERVED;
 	volatile uint32_t MAPR2;
 }AFIO_Periphral;
 
-//-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-//       Peripheral register : EXTI
-//-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+
+							/*******************************************/
+							/*         Peripheral register : EXTI      */
+							/*******************************************/
 typedef struct
 {
 	volatile uint32_t IMR;
@@ -121,12 +121,9 @@ typedef struct
 }EXTI_Periphral;
 
 
-
-
-
-//-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-//       Peripheral Instants: GPIO
-//-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+							/*******************************************/
+							/*         Peripheral Instants: GPIO      */
+							/*******************************************/
 
 #define GPIOA				((GPIO_Periphral *)GPIOA_BASE)
 #define GPIOB				((GPIO_Periphral *)GPIOB_BASE)
@@ -137,26 +134,28 @@ typedef struct
 #define GPIOG				((GPIO_Periphral *)GPIOG_BASE)
 
 
-//-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-//       Peripheral Instants: EXTI
-//-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+							/*******************************************/
+							/*         Peripheral Instants: EXTI      */
+							/*******************************************/
 #define EXTI				    ((EXTI_Periphral *)EXTI_BASE)
 
-//-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-//       Peripheral Instants: RCC
-//-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+							/*******************************************/
+							/*         Peripheral Instants: RCC        */
+							/*******************************************/
+
 #define RCC					    ((RCC_Periphral *)RCC_BASE)
 
-//-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-//       Peripheral Instants: AFIO
-//-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+							/*******************************************/
+							/*         Peripheral Instants: AFIO       */
+							/*******************************************/
 #define AFIO					((AFIO_Periphral *)RCC_BASE)
 
-//-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-//       clock enable Macros
-//-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
-//               GPIO CLOCK EN
+							/*******************************************/
+							/*           Clock Enable Macros           */
+							/*******************************************/
+
+//               GPIOx CLOCK EN
 #define RCC_GPIOA_CLK_EN  ((RCC->APB2ENR) |= (1<<2))
 #define RCC_GPIOB_CLK_EN  ((RCC->APB2ENR) |= (1<<3))
 #define RCC_GPIOC_CLK_EN  ((RCC->APB2ENR) |= (1<<4))
@@ -170,10 +169,86 @@ typedef struct
 
 
 
+							/*******************************************/
+							/*           Clock Enable Macros           */
+							/*******************************************/
 
-//-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-//        Generic Macros:
-//-*-*-*-*-*-*-*-*-*-*--*-*-*-*-*-*-*
+// Hardware Position in NVIC At Cortex M3 STM32
+#define EXTI0_IRQ			6
+#define EXTI1_IRQ			7
+#define EXTI2_IRQ			8
+#define EXTI3_IRQ			9
+#define EXTI4_IRQ			10
+
+// From EXTI5 To EXTI9 have the same number on NVIC so These Have Same Interrupt Handler
+#define EXTI5_9_IRQ			23
+#define EXTI5_IRQ			EXTI5_9_IRQ
+#define EXTI6_IRQ			EXTI5_9_IRQ
+#define EXTI7_IRQ			EXTI5_9_IRQ
+#define EXTI8_IRQ			EXTI5_9_IRQ
+#define EXTI9_IRQ			EXTI5_9_IRQ
+
+// From EXTI10 To EXTI15 have the same number on NVIC so These Have Same Interrupt Handler
+#define EXTI10_15_IRQ		40
+#define EXTI10_IRQ			EXTI10_15_IRQ
+#define EXTI11_IRQ			EXTI10_15_IRQ
+#define EXTI12_IRQ			EXTI10_15_IRQ
+#define EXTI13_IRQ			EXTI10_15_IRQ
+#define EXTI14_IRQ			EXTI10_15_IRQ
+#define EXTI15_IRQ			EXTI10_15_IRQ
+
+
+
+						/*******************************************/
+						/*     Base addresses for NVIC Periphral   */
+						/*******************************************/
+#define NVIC_BASE				   		 0xE000E100UL
+
+						/*******************************************/
+						/*         Peripheral register : NVIC      */
+						/*******************************************/
+#define NVIC_ISER0						 (*(volatile uint32_t *)(NVIC_BASE + 0x00))    // Enable IRQ  0  : 31
+#define NVIC_ISER1						 (*(volatile uint32_t *)(NVIC_BASE + 0x04))	   // Enable IRQ  32 : 63
+#define NVIC_ISER2						 (*(volatile uint32_t *)(NVIC_BASE + 0x08))	   // Enable IRQ  64 : 67
+
+#define NVIC_ICER0						 (*(volatile uint32_t *)(NVIC_BASE + 0x80))	   // Disable IRQ 0  : 31
+#define NVIC_ICER1						 (*(volatile uint32_t *)(NVIC_BASE + 0x84))	   // Disable IRQ 32 : 63
+#define NVIC_ICER2						 (*(volatile uint32_t *)(NVIC_BASE + 0x88))    // Disable IRQ 64 : 67
+
+
+
+						/*******************************************/
+						/*     Enable | Disable NVIC for EXTIx     */
+						/*******************************************/
+
+//                           Enable
+#define NVIC_Enable_EXTI0				 (NVIC_ISER0 |= 1 << EXTI0_IRQ)
+#define NVIC_Enable_EXTI1				 (NVIC_ISER0 |= 1 << EXTI1_IRQ)
+#define NVIC_Enable_EXTI2				 (NVIC_ISER0 |= 1 << EXTI2_IRQ)
+#define NVIC_Enable_EXTI3				 (NVIC_ISER0 |= 1 << EXTI3_IRQ)
+#define NVIC_Enable_EXTI4				 (NVIC_ISER0 |= 1 << EXTI4_IRQ)
+
+#define NVIC_Enable_EXTI5_9				 (NVIC_ISER0 |= 1 << EXTI5_9_IRQ)
+
+#define NVIC_Enable_EXTI10_15			 (NVIC_ISER1 |= 1 << 8)
+
+
+//                           Disable
+#define NVIC_Disable_EXTI0				 (NVIC_ICER0 |= 1 << EXTI0_IRQ)
+#define NVIC_Disable_EXTI1				 (NVIC_ICER0 |= 1 << EXTI1_IRQ)
+#define NVIC_Disable_EXTI2				 (NVIC_ICER0 |= 1 << EXTI2_IRQ)
+#define NVIC_Disable_EXTI3				 (NVIC_ICER0 |= 1 << EXTI3_IRQ)
+#define NVIC_Disable_EXTI4				 (NVIC_ICER0 |= 1 << EXTI4_IRQ)
+
+#define NVIC_Disable_EXTI5_9			 (NVIC_ICER0 |= 1 << EXTI5_9_IRQ)
+
+#define NVIC_Disable_EXTI10_15			 (NVIC_ICER1 |= 1 << 8)
+
+
+
+
+
+
 
 
 

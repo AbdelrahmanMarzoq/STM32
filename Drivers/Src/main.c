@@ -20,16 +20,16 @@
 #include "../HAL_Drivers/LCD/LCD.h"
 #include "../HAL_Drivers/Keypad/Keypad.h"
 #include "../HAL_Drivers/7seg/SevenSegment.h"
+#include "../STM32F103C6_MCAL_Drivers/EXTI/EXTI.h"
 
 
 
 Keypad_t key1;
-
-LCD_8bit_t lcd2;
-
+LCD_4bit_t lcd1;
 GPIO_PinConfig_t LED;
 _7Segment_t segm;
 
+EXIT_t ext1;
 
 
 static void myWait(volatile int ms)
@@ -67,19 +67,15 @@ void segm_init()
 
 void GPIO_test()
 {
-		LED.GPIO_MODE = GPIO_MODE_OUTPUT_PP;
+		LED.GPIO_MODE = GPIO_MODE_OUTPUT_OD;
 		LED.GPIO_OUTPUT_Speed = GPIO_SPEED_2M;
-		LED.GPIO_PinNumber = GPIO_PIN0;
+		LED.GPIO_PinNumber = GPIO_PIN1;
 		LED.GPIOx = GPIOA;
 
 		GPIO_INIT(&LED);
-		GPIO_WRITE_PIN(&LED, HIGH);
-		myWait(20);
-		GPIO_WRITE_PIN(&LED, HIGH);
-
 }
 
-/*
+
 void LCD_init()
 {
 
@@ -102,7 +98,7 @@ void LCD_init()
 	lcd1.Data[3].GPIOx = GPIOA;
 	lcd1.Data[3].GPIO_PinNumber = GPIO_PIN8;
 
-}*/
+}
 
 void KEY_init(){
 	key1.ROW[0].GPIO_PinNumber = GPIO_PIN11;
@@ -130,7 +126,7 @@ void KEY_init(){
 	key1.COL[3].GPIOx = GPIOA;
 
 }
-
+/*
 void LCD_init()
 {
 	lcd2.RS.GPIOx = GPIOB;
@@ -162,8 +158,9 @@ void LCD_init()
 
 	lcd2.Data[7].GPIOx = GPIOA;
 	lcd2.Data[7].GPIO_PinNumber = GPIO_PIN8;
-}
+}*/
 
+int flag = 0;
 void clock_init()
 {
 	// Enable CLK FOR GPIO B
@@ -171,8 +168,17 @@ void clock_init()
 
 	// Enable CLK FOR GPIO A
 	RCC_GPIOA_CLK_EN;
+
+	RCC_AFIO_CLK_EN;
 }
 
+void Toggle()
+{
+	flag = 1;
+	GPIO_TOGGLE_PIN(&LED);
+	LCD_4bit_Set_Cursor(&lcd1, 1, 1);
+	LCD_4bit_Print(&lcd1, "Welocme");
+}
 
 int main(void)
 {
@@ -180,42 +186,34 @@ int main(void)
 	LCD_init();
 	KEY_init();
 	segm_init();
+	GPIO_test();
+
 	const uint8_t Char[KEYPAD_ROW_][KEYPAD_COL_] = {{'7', '8', '9', '/'},
 													{'4', '5', '6', '*'},
 													{'1', '2', '3', '-'},
 													{'#', '0', '=', '+'}};
 	Key_Init(&key1, Char);
-	LCD_8bit_init(&lcd2);
 	SevenSegment_init(&segm);
-	GPIO_test();
 
-	uint8_t Character[8] ={ 0b00000, 0b00000, 0b01010, 0b11111, 0b11111, 0b01110, 0b00100, 0b00000 };
-	//LCD_8bit_Print(&lcd2, (uint8_t *)"Hello World!");
+	ext1.EXTI_PIN = EXTI0PA0;
+	ext1.Detect_EXTI = RISING;
+	ext1.IRQ_EN = EN_EXTI;
+	ext1.PF_IRQ = Toggle;
+	EXTI_Init(&ext1);
+	LCD_4bit_init(&lcd1);
 
-//	LCD_8bit_Set_Cursor(&lcd2, 2, 10);
-//	LCD_8bit_Print_Custom_char(&lcd2, Character, 2);
-
-//	myWait(1000);
-//	LCD_8bit_Display_OFF(&lcd2);
-//	myWait(1000);
-//	LCD_8bit_Display_ON(&lcd2);
 	while(1)
 	{
 		uint8_t press = Key_get(&key1);
-
-
 		if (press != ' ')
 		{
+			LCD_4bit_Print_Char(&lcd1, press);
 			SevenSegment_Print(&segm, press);
-			LCD_8bit_Print_Char(&lcd2, press);
 		}
-
-
-		GPIO_TOGGLE_PIN(&LED);
-		myWait(10);
-
 	}
 }
+
+
 
 
 

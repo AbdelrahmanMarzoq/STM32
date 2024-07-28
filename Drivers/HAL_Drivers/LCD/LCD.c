@@ -10,78 +10,61 @@
 							/*	  	     Include Section         */
 							/*************************************/
 #include "LCD.h"
-
-
 							/*************************************/
-							/*	   Static Function Declaration   */
+							/*	    Global Static Declaration    */
 							/*************************************/
-
-
 static void myWait(volatile int ms);
 
+
+
 #ifdef _LCD_4BIT_MODE
-
-#define _8BIT_MODE		0x30
-
 							/*************************************/
-							/*	   Static Function Declaration   */
+							/*	       Static Declaration        */
 							/*************************************/
-
 static void Send_4bit(LCD_4bit_t *LCD, uint8_t _data_command);
 static void Send_CGRAM(LCD_4bit_t *LCD, uint8_t data);
-
+static char AddressDD = 0;
 							/*************************************/
 							/*		 Function Definition		 */
 							/*************************************/
 
-
-static char AddressDD = 0;
-
 void LCD_4bit_init(LCD_4bit_t *LCD)
 {
+	myWait(20);
+
 	// Init RS & EN & DATA Lines
-		LCD->RS.GPIO_MODE = GPIO_MODE_OUTPUT_PP;
-		LCD->RS.GPIO_OUTPUT_Speed = GPIO_SPEED_2M;
-		LCD->EN.GPIO_MODE = GPIO_MODE_OUTPUT_PP;
-		LCD->EN.GPIO_OUTPUT_Speed = GPIO_SPEED_2M;
-		GPIO_INIT(&(LCD->RS));
-		GPIO_INIT(&(LCD->EN));
-		GPIO_WRITE_PIN(&(LCD->RS), LOW);
-		GPIO_WRITE_PIN(&(LCD->EN), LOW);
-		for (char index = 0; index < 4; index++)
-		{
-			LCD->Data[(int)index].GPIO_MODE = GPIO_MODE_OUTPUT_PP;
-			LCD->Data[(int)index].GPIO_OUTPUT_Speed = GPIO_SPEED_2M;
-			GPIO_INIT(&(LCD->Data[(int)index]));
-			GPIO_WRITE_PIN(&(LCD->Data[(int)index]), LOW);
-		}
+	LCD->RS.GPIO_MODE = GPIO_MODE_OUTPUT_PP;
+	LCD->RS.GPIO_OUTPUT_Speed = GPIO_SPEED_2M;
+	LCD->EN.GPIO_MODE = GPIO_MODE_OUTPUT_PP;
+	LCD->EN.GPIO_OUTPUT_Speed = GPIO_SPEED_2M;
+	GPIO_INIT(&(LCD->RS));
+	GPIO_INIT(&(LCD->EN));
+	GPIO_WRITE_PIN(&(LCD->RS), LOW);
+	GPIO_WRITE_PIN(&(LCD->EN), LOW);
 
-		// Following init from DataSheet
-		// Delay from DataSheet 20 ms in future will write prof delay
-		myWait(2000);
-		// Send this command from DataSheet
-		LCD_4bit_Command(LCD, _8BIT_MODE | _LCD_2LINE);
-		// Delay from DataSheet 5 ms in future will write prof delay
-		myWait(2000);
-		LCD_4bit_Command(LCD, _8BIT_MODE | _LCD_2LINE);
-		// Delay from DataSheet 100 micro sec in future will write prof delay
-		myWait(2000);
-		// Init it with 8bit mode and 2 Line 5*8
-		LCD_4bit_Command(LCD, _8BIT_MODE | _LCD_2LINE | _LCD_DOT_MATRIX_7);
-		myWait(2000);
-		LCD_4bit_Command(LCD, _LCD_4BIT_MODE | _LCD_2LINE | _LCD_DOT_MATRIX_7);
+	// Init Data Lines
+	for (char index = 0; index < 4; index++)
+	{
+		LCD->Data[(int)index].GPIO_MODE = GPIO_MODE_OUTPUT_PP;
+		LCD->Data[(int)index].GPIO_OUTPUT_Speed = GPIO_SPEED_2M;
+		GPIO_INIT(&(LCD->Data[(int)index]));
+		GPIO_WRITE_PIN(&(LCD->Data[(int)index]), LOW);
+	}
+	// Following init from DataSheet
+	// Delay from DataSheet 20 ms in future will write prof delay
+	myWait(15);
 
-		// Send command to clear Screen
-		LCD_4bit_Command(LCD, _LCD_CLEAR);
-		// Send command to set cursor at row 1 column 1
-		LCD_4bit_Command(LCD, _LCD_RETURN_HOME);
-		// Send command to Display on and Blink cursor on
-		LCD_4bit_Command(LCD, _LCD_DISPLAY_ON | _LCD_CURSOR_ON);
-		// Send command to set cursor increamenet toward right after writing without shift display
-		LCD_4bit_Command(LCD, _LCD_INC_CURSOR_SHIFT_OFF);
-		// Send command that i ready to recieve data so i make the AC (Address counter) to First address in DDRAM
-		LCD_4bit_Command(LCD, _LCD_DDRAM_START);
-
+	LCD_4bit_Command(LCD, _LCD_RETURN_HOME); // Must Be First Command in 4bit mode
+	LCD_4bit_Command(LCD, _LCD_4BIT_MODE);
+	LCD_4bit_Command(LCD, _LCD_4BIT_MODE | _LCD_2LINE | _LCD_DOT_MATRIX_7);
+	// Send command to clear Screen
+	LCD_4bit_Command(LCD, _LCD_CLEAR);
+	// Send command to Display on and Blink cursor on
+	LCD_4bit_Command(LCD, _LCD_DISPLAY_ON | _LCD_CURSOR_ON);
+	// Send command to set cursor increamenet toward right after writing without shift display
+	LCD_4bit_Command(LCD, _LCD_INC_CURSOR_SHIFT_OFF);
+	// Send command that i ready to recieve data so i make the AC (Address counter) to First address in DDRAM
+	LCD_4bit_Command(LCD, _LCD_DDRAM_START);
 }
 
 void LCD_4bit_Set_Cursor(LCD_4bit_t *LCD, uint8_t row, uint8_t column){
@@ -104,16 +87,15 @@ void LCD_4bit_Set_Cursor(LCD_4bit_t *LCD, uint8_t row, uint8_t column){
 }
 
 void LCD_4bit_Command(LCD_4bit_t *LCD, uint8_t command){
-
 	// To Tell LCD That i will send command Write RS LOW @ref INFO (LCD.H)
 	GPIO_WRITE_PIN(&(LCD->RS), LOW);
 	// Send High Nibble on Command Wire
-	Send_4bit(LCD, (command>>4) & 0x0F);
+	Send_4bit(LCD, (command >> 4));
 	// Send Low Nibble on Command Wire
 	Send_4bit(LCD, command);
 }
 
-static void LCD_4bit_Print_Char(LCD_4bit_t *LCD, uint8_t Data){
+void LCD_4bit_Print_Char(LCD_4bit_t *LCD, uint8_t Data){
 
 	if (AddressDD == 16) LCD_4bit_Set_Cursor(LCD, 2, 1);
 	else if (AddressDD == 32)
@@ -134,6 +116,13 @@ void LCD_4bit_Print(LCD_4bit_t *LCD, uint8_t *data){
 	while(*data) LCD_4bit_Print_Char(LCD, *data++);
 }
 
+void LCD_4bit_Print_Number(LCD_4bit_t *LCD, int value)
+{
+	uint8_t str[10] = {0};
+	sprintf(str,"%i",value);
+	LCD_4bit_Print(LCD, str);
+}
+
 void LCD_4bit_Print_Custom_char(LCD_4bit_t *LCD, const uint8_t c_char[], uint8_t Pos){
 	Pos &= 0x07;
 	LCD_4bit_Command(LCD, _LCD_CGRAM_START + (Pos*8));
@@ -150,7 +139,11 @@ void LCD_4bit_Print_Custom_char(LCD_4bit_t *LCD, const uint8_t c_char[], uint8_t
 static void Send_CGRAM(LCD_4bit_t *LCD, uint8_t data){
 	// To Tell LCD That i will send Data Write RS HIGH @ref INFO (LCD.H)
 	GPIO_WRITE_PIN(&(LCD->RS), HIGH);
+
 	// Send 8bits data on Wires Bit by Bit
+	// Send High Nibble on Data Wire
+	Send_4bit(LCD, data >> 4);
+	// Send Low Nibble on Data Wire
 	Send_4bit(LCD, data);
 }
 
@@ -168,6 +161,18 @@ static void Send_4bit(LCD_4bit_t *LCD, uint8_t _data_command)
 	myWait(2);
 }
 
+void LCD_4bit_Display_ON(LCD_4bit_t *LCD)
+{
+	// To Make Display ON on LDC
+	LCD_4bit_Command(LCD, _LCD_DISPLAY_ON);
+}
+
+void LCD_4bit_Display_OFF(LCD_4bit_t *LCD)
+{
+	// To Make Display OFF Without losing DDRAM Content on LDC
+	LCD_4bit_Command(LCD, _LCD_DISPLAY_OFF);
+}
+
 void LCD_4bit_Clear(LCD_4bit_t *LCD)
 {
 	// To Clear LCD & DDRAM Memory
@@ -180,34 +185,36 @@ void LCD_4bit_Clear(LCD_4bit_t *LCD)
 #ifdef _LCD_8BIT_MODE
 
 						/*************************************/
-						/*	   Static Function Declaration   */
+						/*	       Static Declaration        */
 						/*************************************/
 
 static void Send_8bit(LCD_8bit_t *LCD, uint8_t _data_command);
 static void Send_CGRAM(LCD_8bit_t *LCD, uint8_t data);
-
 static char AddressDD = 0;
 
 						/*************************************/
 						/*		 Function Definition		 */
 						/*************************************/
-
-
 void LCD_8bit_init(LCD_8bit_t *LCD)
 {
 	// Init RS & EN & DATA Lines
 	LCD->RS.GPIO_MODE = GPIO_MODE_OUTPUT_PP;
 	LCD->RS.GPIO_OUTPUT_Speed = GPIO_SPEED_2M;
+
 	LCD->EN.GPIO_MODE = GPIO_MODE_OUTPUT_PP;
 	LCD->EN.GPIO_OUTPUT_Speed = GPIO_SPEED_2M;
+
 	GPIO_INIT(&(LCD->RS));
 	GPIO_INIT(&(LCD->EN));
+
 	GPIO_WRITE_PIN(&(LCD->RS), LOW);
 	GPIO_WRITE_PIN(&(LCD->EN), LOW);
+
 	for (char index = 0; index < 8; index++)
 	{
 		LCD->Data[(int)index].GPIO_MODE = GPIO_MODE_OUTPUT_PP;
 		LCD->Data[(int)index].GPIO_OUTPUT_Speed = GPIO_SPEED_2M;
+
 		GPIO_INIT(&(LCD->Data[(int)index]));
 		GPIO_WRITE_PIN(&(LCD->Data[(int)index]), LOW);
 	}
@@ -290,8 +297,6 @@ void LCD_8bit_Print_Number(LCD_8bit_t *LCD, int value)
 	sprintf(str,"%i",value);
 	LCD_8bit_Print(LCD, str);
 }
-
-
 
 void LCD_8bit_Print_Custom_char(LCD_8bit_t *LCD, const uint8_t c_char[], uint8_t Pos)
 {

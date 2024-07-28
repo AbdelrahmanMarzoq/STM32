@@ -1,6 +1,7 @@
 "HAL_Drivers/7seg/SevenSegment.o"
 "HAL_Drivers/Keypad/Keypad.o"
 "HAL_Drivers/LCD/LCD.o"
+"STM32F103C6_MCAL_Drivers/EXTI/EXTI.o"
 "STM32F103C6_MCAL_Drivers/GPIO/STM32F103C6_GPIO_Driver.o"
 "Src/main.o"
 "Src/syscalls.o"

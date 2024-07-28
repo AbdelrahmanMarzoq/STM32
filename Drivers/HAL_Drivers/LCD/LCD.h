@@ -38,16 +38,16 @@
 #ifndef LCD_LCD_H_
 #define LCD_LCD_H_
 
-/*****************************************/
-/*             Include Section            */
-/*****************************************/
+						/*****************************************/
+						/*             Include Section           */
+						/*****************************************/
 
 #include "../STM32F103C6_MCAL_Drivers/GPIO/STM32F103C6_GPIO_Driver.h"
 
 
-/*****************************************/
-/*             Macros Section            */
-/*****************************************/
+						/*****************************************/
+						/*             Macros Section            */
+						/*****************************************/
 
 //@ref INSTRUCTIONS
 #define _LCD_CLEAR						0x01					//The LCD Will clear and DDRAM Will clear
@@ -85,17 +85,17 @@
 //Function Set
 // Here You must use | operator with either Feature you need to init it (4bit or 8bit) with (2line or 1line) with (5*7 or 5*10) (Recommended)
 #define _LCD_4BIT_1LINE_7				0x20
-//#define _LCD_4BIT_MODE					_LCD_4BIT_1LINE_7	//LCD 4 Data width				  	(Recommended)
-#define _LCD_8BIT_MODE					0x30					//LCD 8 Data width
+#define _LCD_4BIT_MODE					_LCD_4BIT_1LINE_7	//LCD 4 Data width				  	(Recommended)
+//#define _LCD_8BIT_MODE					0x30					//LCD 8 Data width
 #define _LCD_1LINE						_LCD_4BIT_1LINE_7		//One line
 #define _LCD_2LINE						0x28					//Two lines        				  	(Recommended)
 #define _LCD_DOT_MATRIX_7				_LCD_4BIT_1LINE_7		//Custom char will be 5*7	CGRAM 	(Recommended)
 #define _LCD_DOT_MATRIX_10				0X24					//Custom char will be 5*10  CGRAM
 
 
-/*****************************************/
-/*     Data Type Declaration Section	 */
-/*****************************************/
+							/*****************************************/
+							/*     Data Type Declaration Section	 */
+							/*****************************************/
 
 
 #ifdef _LCD_4BIT_MODE
@@ -122,22 +122,11 @@ typedef struct
 
 
 
-/*****************************************/
-/*     Function Declaration	  	     	 */
-/*****************************************/
+							/*****************************************/
+							/*     Function Declaration	  	     	 */
+							/*****************************************/
 
-#ifdef _LCD_4BIT_MODE
 
-void LCD_4bit_init(LCD_4bit_t *LCD);
-void LCD_4bit_Set_Cursor(LCD_4bit_t *LCD, uint8_t row, uint8_t column);
-void LCD_4bit_Command(LCD_4bit_t *LCD, uint8_t command);
-void LCD_4bit_Print(LCD_4bit_t *LCD, uint8_t *data);
-void LCD_4bit_Print_Custom_char(LCD_4bit_t *LCD, const uint8_t c_char[], uint8_t Pos);
-void LCD_4bit_Display_ON(LCD_4bit_t *LCD);
-void LCD_4bit_Display_ON(LCD_4bit_t *LCD);
-void LCD_4bit_Clear(LCD_4bit_t *LCD);
-
-#endif
 
 
 #ifdef _LCD_8BIT_MODE
@@ -251,9 +240,23 @@ void LCD_8bit_Clear(LCD_8bit_t *LCD);
 #endif
 
 
-void Convert_Byte_To_String(const uint8_t value, uint8_t *str);
-void Convert_Short_To_String(const uint16_t value, uint8_t *str);
-void Convert_int_To_String(const uint32_t value, uint8_t *str);
+#ifdef _LCD_4BIT_MODE
+
+void LCD_4bit_init(LCD_4bit_t *LCD);
+void LCD_4bit_Set_Cursor(LCD_4bit_t *LCD, uint8_t row, uint8_t column);
+void LCD_4bit_Command(LCD_4bit_t *LCD, uint8_t command);
+void LCD_4bit_Print_Char(LCD_4bit_t *LCD, uint8_t Data);
+void LCD_4bit_Print(LCD_4bit_t *LCD, uint8_t *data);
+void LCD_4bit_Print_Number(LCD_4bit_t *LCD, int value);
+void LCD_4bit_Print_Custom_char(LCD_4bit_t *LCD, const uint8_t c_char[], uint8_t Pos);
+void LCD_4bit_Display_ON(LCD_4bit_t *LCD);
+void LCD_4bit_Display_ON(LCD_4bit_t *LCD);
+void LCD_4bit_Clear(LCD_4bit_t *LCD);
+
+#endif
+
+
+
 
 
 

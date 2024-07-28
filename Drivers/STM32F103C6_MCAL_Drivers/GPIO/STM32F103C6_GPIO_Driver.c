@@ -15,57 +15,32 @@ uint8_t GetPos(PINy_t PinNumber)
 {
 	switch(PinNumber)
 	{
-	case GPIO_PIN0:
-		return 0;
-		break;
-	case GPIO_PIN1:
-		return 4;
-		break;
-	case GPIO_PIN2:
-		return 8;
-		break;
-	case GPIO_PIN3:
-		return 12;
-		break;
-	case GPIO_PIN4:
-		return 16;
-		break;
-	case GPIO_PIN5:
-		return 20;
-		break;
-	case GPIO_PIN6:
-		return 24;
-		break;
-	case GPIO_PIN7:
-		return 28;
-		break;
-	case GPIO_PIN8:
-		return 0;
-		break;
-	case GPIO_PIN9:
-		return 4;
-		break;
+	case GPIO_PIN0 :
+	case GPIO_PIN8 :
+		return 0; break;
+	case GPIO_PIN1 :
+	case GPIO_PIN9 :
+		return 4; break;
+	case GPIO_PIN2 :
 	case GPIO_PIN10:
-		return 8;
-		break;
+		return 8; break;
+	case GPIO_PIN3 :
 	case GPIO_PIN11:
-		return 12;
-		break;
+		return 12; break;
+	case GPIO_PIN4 :
 	case GPIO_PIN12:
-		return 16;
-		break;
+		return 16; break;
+	case GPIO_PIN5 :
 	case GPIO_PIN13:
-		return 20;
-		break;
+		return 20; break;
+	case GPIO_PIN6 :
 	case GPIO_PIN14:
-		return 24;
-		break;
+		return 24; break;
+	case GPIO_PIN7 :
 	case GPIO_PIN15:
-		return 28;
-		break;
+		return 28; break;
 	default :
-		return 0;
-		break;
+		return 0; break;
 	}
 }
 

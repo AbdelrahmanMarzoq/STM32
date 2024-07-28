@@ -1,7 +1,8 @@
 main.c:35:13:myWait	24	static
 main.c:43:6:segm_init	4	static
 main.c:68:6:GPIO_test	8	static
-main.c:107:6:KEY_init	4	static
-main.c:134:6:LCD_init	4	static
-main.c:167:6:clock_init	4	static
-main.c:177:5:main	48	static
+main.c:79:6:LCD_init	4	static
+main.c:103:6:KEY_init	4	static
+main.c:164:6:clock_init	4	static
+main.c:175:6:Toggle	8	static
+main.c:183:5:main	40	static

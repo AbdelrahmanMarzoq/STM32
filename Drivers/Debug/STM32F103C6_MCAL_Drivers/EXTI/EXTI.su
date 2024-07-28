@@ -1,0 +1,13 @@
+EXTI.c:41:13:Update	32	static
+EXTI.c:101:6:EXTI_Init	16	static
+EXTI.c:106:6:EXTI_Update	16	static
+EXTI.c:111:6:EXTI_DeInit	4	static
+EXTI.c:132:13:EN_NVIC	16	static
+EXTI.c:161:13:DIS_NVIC	16	static
+EXTI.c:190:6:EXTI0_IRQHandler	8	static
+EXTI.c:198:6:EXTI1_IRQHandler	8	static
+EXTI.c:206:6:EXTI2_IRQHandler	8	static
+EXTI.c:214:6:EXTI3_IRQHandler	8	static
+EXTI.c:222:6:EXTI4_IRQHandler	8	static
+EXTI.c:230:6:EXTI9_5_IRQHandler	8	static
+EXTI.c:241:6:EXTI15_10_IRQHandler	8	static
