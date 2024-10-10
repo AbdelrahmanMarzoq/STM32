@@ -2,7 +2,7 @@
  ******************************************************************************
  * @File           : STM32F103C6_USART_Driver.h
  * @Author         : Abdelrhman Marzoq
- * @Brief          : USART Driver Header file
+ * @Brief          : Driver Header file
  * 			Created on: Oct 7, 2024
  ******************************************************************************
 **/
