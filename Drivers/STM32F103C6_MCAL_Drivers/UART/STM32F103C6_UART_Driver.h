@@ -139,9 +139,44 @@ typedef struct
  * =======================================================================================
 */
 
+/**================================================================
+ * @Fn                 	- USART_INIT
+ * @brief				- Init USART Periphral
+ * @param [in]			- Pointer to Your UART
+ *
+ * @retval				- NONE
+ * Note					- NONE
+*/
 void USART_INIT(UART *UART_Conf);
+
+/**================================================================
+ * @Fn                 	- USART_SendData
+ * @brief				- Func that Send your Data
+ * @param [in]			- Pointer to Your UART & Pointer to Data need to send
+ *
+ * @retval				- NONE
+ * Note					- NONE
+*/
 void USART_SendData(UART *UART_Conf, uint8_t *TxBuffer);
+
+/**================================================================
+ * @Fn                 	- USART_RecieveData
+ * @brief				- Func That Recieve Data
+ * @param [in]			- Pointer to Your UART & Pointer to VAR store datat recieved
+ *
+ * @retval				- NONE
+ * Note					- NONE
+*/
 void USART_RecieveData(UART *UART_Conf, uint8_t *RxBuffer);
+
+/**================================================================
+ * @Fn                 	- USART_deINIT
+ * @brief				- De init UART
+ * @param [in]			- Pointer to Your UART
+ *
+ * @retval				- NONE
+ * Note					- NONE
+*/
 void USART_deINIT(UART *UART_Conf);
 
 

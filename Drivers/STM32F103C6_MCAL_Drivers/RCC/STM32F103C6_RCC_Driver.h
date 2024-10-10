@@ -1,11 +1,11 @@
-/*
- * STM32F103C6_GPIO_Driver.c
- *
- *  Created on: Jul 22, 2024
- *  Author: Abdelrhman Marzoq
- */
-
-
+/**
+ ******************************************************************************
+ * @File           : STM32F103C6_RCC_Driver.h
+ * @Author         : Abdelrhman Marzoq
+ * @Brief          : Driver Header File
+ * 			Created on: Jul 22, 2024
+ ******************************************************************************
+**/
 
 #ifndef _RCC_DRIVER_H
 #define _RCC_DRIVER_H

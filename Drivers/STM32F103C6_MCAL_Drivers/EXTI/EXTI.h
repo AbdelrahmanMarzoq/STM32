@@ -1,15 +1,13 @@
-/*
- * EXTI.h
- *
- *  Created on: Jul 27, 2024
- *      Author: Abdelrhman Marzoq
- *
- *
- * You must Enable Clock RCC For AFIO in your Layer To Work Proberly
- *
- *
- */
+/**
+ ******************************************************************************
+ * @File           : EXTI.h
+ * @Author         : Abdelrhman Marzoq
+ * @Brief          : Driver Header File
+ * 			Created on: Jul 27, 2024
+ ******************************************************************************
+**/
 
+// You must Enable Clock RCC For AFIO in your Layer To Work Proberly
 // To Enable AFIO Just Write this Defined Macro (RCC_AFIO_CLK_EN)
 
 

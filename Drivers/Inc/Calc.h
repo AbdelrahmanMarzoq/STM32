@@ -1,9 +1,11 @@
-/*
- * Calc.h
- *
- *  Created on: Jul 29, 2024
- *      Author: Abdelrhman Marzoq
- */
+/**
+ ******************************************************************************
+ * @File           : Calc.h
+ * @Author         : Abdelrhman Marzoq
+ * @Brief          : Calculater Header File
+ * 			Created on: Jul 29, 2024
+ ******************************************************************************
+**/
 
 #ifndef CALC_H_
 #define CALC_H_

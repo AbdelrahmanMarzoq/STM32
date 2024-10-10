@@ -1,9 +1,11 @@
-/*
- * STM32F103C6_GPIO_Driver.c
- *
- *  Created on: Jul 22, 2024
- *  Author: Abdelrhman Marzoq
- */
+/**
+ ******************************************************************************
+ * @File           : STM32F103C6_GPIO_Driver.c
+ * @Author         : Abdelrhman Marzoq
+ * @Brief          : GPIO Driver
+ * 			Created on: Jul 22, 2024
+ ******************************************************************************
+**/
 
 #include "STM32F103C6_GPIO_Driver.h"
 

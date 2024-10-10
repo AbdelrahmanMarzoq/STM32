@@ -1,9 +1,11 @@
-/*
- * STM32F103X6.h
- *
- *  Created on: Jul 22, 2024
- *  Author: Abdelrhman Marzoq
- */
+/**
+ ******************************************************************************
+ * @File           : STM32F103X6.h
+ * @Author         : Abdelrhman Marzoq
+ * @Brief          : Header for STM32
+ * 			Created on: Jul 22, 2024
+ ******************************************************************************
+**/
 
 #ifndef STM32F103X6_H_
 #define STM32F103X6_H_

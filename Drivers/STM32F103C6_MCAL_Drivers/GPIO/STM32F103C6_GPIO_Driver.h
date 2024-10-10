@@ -2,12 +2,13 @@
  ******************************************************************************
  * @File           : STM32F103C6_GPIO_Driver.h
  * @Author         : Abdelrhman Marzoq
- * @Brief          : GPIO Driver
- * 					 You must Enable Clock RCC For EXTI in your application To Work Proberly
+ * @Brief          : Driver Header File
  * 			Created on: Jul 22, 2024
  ******************************************************************************
 **/
 
+
+// You must Enable Clock RCC For EXTI in your application To Work Proberly
 // @ref EN_Clock_define
 //Just use These Defined Macros in your layer to Enable GPIOx
 // Macro (RCC_GPIOA_CLK_EN) For GPIOA

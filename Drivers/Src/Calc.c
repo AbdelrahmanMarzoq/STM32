@@ -1,10 +1,11 @@
-/*
- * Calc.c
- *
- *  Created on: Jul 29, 2024
- *      Author: Abdelrhman Marzoq
- */
-
+/**
+ ******************************************************************************
+ * @File           : Calc.c
+ * @Author         : Abdelrhman Marzoq
+ * @Brief          : Calculater Application
+ * 			Created on: Jul 29, 2024
+ ******************************************************************************
+**/
 
 #include "Calc.h"
 
