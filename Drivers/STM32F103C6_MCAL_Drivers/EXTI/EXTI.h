@@ -21,6 +21,7 @@
 						/*             Include Section           */
 						/*****************************************/
 #include "../STM32F103C6_MCAL_Drivers/GPIO/STM32F103C6_GPIO_Driver.h"
+#include "../RCC/STM32F103C6_RCC_Driver.h"
 
 
 
@@ -61,8 +62,8 @@ typedef struct
 						/*****************************************/
 
 //@ref ENABLE_Define
-#define EN_EXTI             0      // For Enable EXTI
-#define DIS_EXTI			1	   // For Disable EXTI
+#define DIS_EXTI             0      // For Enable EXTI
+#define EN_EXTI			1	   // For Disable EXTI
 
 // @ref Trigger_Define
 #define RISING              0      // For Detecting Rising Edge

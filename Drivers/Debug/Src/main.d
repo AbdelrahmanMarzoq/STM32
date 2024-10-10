@@ -1,18 +1,22 @@
-Src/main.o: ../Src/main.c ../Src/../HAL_Drivers/LCD/LCD.h \
- ../Inc/../STM32F103C6_MCAL_Drivers/GPIO/STM32F103C6_GPIO_Driver.h \
- ../Inc/../STM32F103C6_MCAL_Drivers/GPIO/../STM32F103X6.h \
- ../Src/../HAL_Drivers/Keypad/Keypad.h \
- ../Src/../HAL_Drivers/7seg/SevenSegment.h \
- ../Src/../STM32F103C6_MCAL_Drivers/EXTI/EXTI.h
+Src/main.o: ../Src/main.c \
+ ../Src/../STM32F103C6_MCAL_Drivers/UART/STM32F103C6_UART_Driver.h \
+ ../Src/../STM32F103C6_MCAL_Drivers/UART/../STM32F103X6.h \
+ ../Src/../STM32F103C6_MCAL_Drivers/UART/../RCC/STM32F103C6_RCC_Driver.h \
+ ../Src/../STM32F103C6_MCAL_Drivers/UART/../RCC/../STM32F103X6.h \
+ ../Src/../STM32F103C6_MCAL_Drivers/UART/../GPIO/STM32F103C6_GPIO_Driver.h \
+ ../Src/../STM32F103C6_MCAL_Drivers/UART/../GPIO/../STM32F103X6.h \
+ ../Src/../STM32F103C6_MCAL_Drivers/UART/../GPIO/../RCC/STM32F103C6_RCC_Driver.h
 
-../Src/../HAL_Drivers/LCD/LCD.h:
+../Src/../STM32F103C6_MCAL_Drivers/UART/STM32F103C6_UART_Driver.h:
 
-../Inc/../STM32F103C6_MCAL_Drivers/GPIO/STM32F103C6_GPIO_Driver.h:
+../Src/../STM32F103C6_MCAL_Drivers/UART/../STM32F103X6.h:
 
-../Inc/../STM32F103C6_MCAL_Drivers/GPIO/../STM32F103X6.h:
+../Src/../STM32F103C6_MCAL_Drivers/UART/../RCC/STM32F103C6_RCC_Driver.h:
 
-../Src/../HAL_Drivers/Keypad/Keypad.h:
+../Src/../STM32F103C6_MCAL_Drivers/UART/../RCC/../STM32F103X6.h:
 
-../Src/../HAL_Drivers/7seg/SevenSegment.h:
+../Src/../STM32F103C6_MCAL_Drivers/UART/../GPIO/STM32F103C6_GPIO_Driver.h:
 
-../Src/../STM32F103C6_MCAL_Drivers/EXTI/EXTI.h:
+../Src/../STM32F103C6_MCAL_Drivers/UART/../GPIO/../STM32F103X6.h:
+
+../Src/../STM32F103C6_MCAL_Drivers/UART/../GPIO/../RCC/STM32F103C6_RCC_Driver.h:

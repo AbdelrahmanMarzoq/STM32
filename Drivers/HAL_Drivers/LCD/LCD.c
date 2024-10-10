@@ -60,7 +60,7 @@ void LCD_4bit_init(LCD_4bit_t *LCD)
 	// Send command to clear Screen
 	LCD_4bit_Command(LCD, _LCD_CLEAR);
 	// Send command to Display on and Blink cursor on
-	LCD_4bit_Command(LCD, _LCD_DISPLAY_ON | _LCD_CURSOR_ON);
+	LCD_4bit_Command(LCD, _LCD_DISPLAY_ON | _LCD_UNDERLINE_CURSOR_ON);
 	// Send command to set cursor increamenet toward right after writing without shift display
 	LCD_4bit_Command(LCD, _LCD_INC_CURSOR_SHIFT_OFF);
 	// Send command that i ready to recieve data so i make the AC (Address counter) to First address in DDRAM
@@ -118,10 +118,50 @@ void LCD_4bit_Print(LCD_4bit_t *LCD, uint8_t *data){
 
 void LCD_4bit_Print_Number(LCD_4bit_t *LCD, int value)
 {
-	uint8_t str[10] = {0};
-	sprintf(str,"%i",value);
+	uint8_t str[13] = {0};
+	sprintf(str,"%d",value);
+	int length = strlen(str);
+	if (value < 0) str[length + 1] = '-';
 	LCD_4bit_Print(LCD, str);
 }
+
+void LCD_4bit_Print_Fl_Number(LCD_4bit_t *LCD, float value, uint8_t N_digits)
+{
+	uint8_t str[10] = {0};
+	uint8_t strF[10]  = {0};
+	uint32_t PWR = 1;
+
+	// Befor Floating point
+	// Extract integer part from float number
+	int Decimal = (int)value;
+	// Conver integer part to string
+	sprintf(str, "%d", Decimal);
+	int length = strlen(str);
+	if (Decimal < 0) str[length + 1] = '-';
+	LCD_4bit_Print(LCD, str);
+
+
+	// After Floating point with N_digits
+	// Extract fractional Part
+	if (value < 0)
+	{
+		value *= -1;
+		Decimal *= -1;
+	}
+	float Fraction = (float)value - (float)(Decimal);
+
+	// Calculate 10 pwr N_digit
+	for (int i = 0; i < N_digits; i++) PWR *= 10;
+	// Convert Fractional part to integer part with limit number of digit
+	int FracToInt = (int)(Fraction * PWR);
+
+    // Conver Fractional part to string after Turning into integer
+    sprintf(strF, "%d", FracToInt);
+    // Print Floating Point
+    LCD_4bit_Print_Char(LCD, '.');
+    LCD_4bit_Print(LCD, strF);
+}
+
 
 void LCD_4bit_Print_Custom_char(LCD_4bit_t *LCD, const uint8_t c_char[], uint8_t Pos){
 	Pos &= 0x07;
@@ -177,6 +217,7 @@ void LCD_4bit_Clear(LCD_4bit_t *LCD)
 {
 	// To Clear LCD & DDRAM Memory
 	LCD_4bit_Command(LCD, _LCD_CLEAR);
+	LCD_4bit_Set_Cursor(LCD, 1, 1);
 }
 
 #endif
@@ -296,6 +337,36 @@ void LCD_8bit_Print_Number(LCD_8bit_t *LCD, int value)
 	uint8_t str[10] = {0};
 	sprintf(str,"%i",value);
 	LCD_8bit_Print(LCD, str);
+}
+
+void LCD_8bit_Print_Fl_Number(LCD_8bit_t *LCD, float value, uint8_t N_digits)
+{
+	uint8_t str[11] = {0};
+	uint8_t strF[11]  = {0};
+	uint32_t PWR = 1;
+
+	// Befor Floating point
+	// Extract integer part from float number
+	int Decimal = (int)value;
+	// Conver integer part to string
+	sprintf(str, "%d", Decimal);
+	LCD_8bit_Print(LCD, str);
+
+
+	// After Floating point with N_digits
+	// Extract fractional Part
+	float Fraction = (float)value - (float)(Decimal);
+
+	// Calculate 10 pwr N_digit
+	for (int i = 0; i < N_digits; i++) PWR *= 10;
+	// Convert Fractional part to integer part with limit number of digit
+	int FracToInt = (int)(Fraction * PWR);
+
+    // Conver Fractional part to string after Turning into integer
+    sprintf(strF, "%d", FracToInt);
+    // Print Floating Point
+    LCD_8bit_Print_Char(LCD, '.');
+    LCD_8bit_Print(LCD, strF);
 }
 
 void LCD_8bit_Print_Custom_char(LCD_8bit_t *LCD, const uint8_t c_char[], uint8_t Pos)

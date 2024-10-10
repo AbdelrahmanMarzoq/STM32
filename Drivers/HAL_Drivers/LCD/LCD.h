@@ -3,10 +3,10 @@
  *
  *  Created on: Jul 24, 2024
  *      Author: Abdelrhman Marzoq
- */
-
-
-/**
+ *
+ *
+ *      All documentation on Functions 8bit mode
+ *      The 4bit mode have the same documentation
  * 							How To Use this Driver
  *
  * First you must define Your Mode 8bit or 4bit be Enable these Macros in Driver
@@ -158,7 +158,7 @@ void LCD_8bit_Set_Cursor(LCD_8bit_t *LCD, uint8_t row, uint8_t column);
  * @brief				-
  * @param [in]			- LCD     : pointer to LCD_8bit_t structure that Contain
  * 						            Configuration for RS and EN and Data Wires.
- * @param [in]			- Command : is commands fromt @ref INSTRUCTIONS
+ * @param [in]			- Command : is commands from @ref INSTRUCTIONS
  * @retval				- NONE
  * Note					- NONE
 */
@@ -196,6 +196,19 @@ void LCD_8bit_Print(LCD_8bit_t *LCD, uint8_t *data);
  * Note					- NONE
 */
 void LCD_8bit_Print_Number(LCD_8bit_t *LCD, int value);
+
+/**================================================================
+ * @Fn                 	- LCD_8bit_Print_Fl_Number
+ * @brief				- Print Floating Number
+ * @param [in]			- LCD     : pointer to LCD_8bit_t structure that Contain
+ * 						  			Configuration for RS and EN and Data Wires.
+ * @param [in]			- value   : is the value that need to print on LCD
+ * @param [in]			- N_digits: Number of digits after floating point need to print
+ * @retval				- NONE
+ * Note					- Recommended N_digits be 2 or less than 5
+ * Note                 - Function will work upto N_digits 9
+*/
+void LCD_8bit_Print_Fl_Number(LCD_8bit_t *LCD, float value, uint8_t N_digits);
 
 /**================================================================
  * @Fn                 	- LCD_8bit_Print_Custom_char
@@ -248,6 +261,7 @@ void LCD_4bit_Command(LCD_4bit_t *LCD, uint8_t command);
 void LCD_4bit_Print_Char(LCD_4bit_t *LCD, uint8_t Data);
 void LCD_4bit_Print(LCD_4bit_t *LCD, uint8_t *data);
 void LCD_4bit_Print_Number(LCD_4bit_t *LCD, int value);
+void LCD_4bit_Print_Fl_Number(LCD_4bit_t *LCD, float value, uint8_t N_digits);
 void LCD_4bit_Print_Custom_char(LCD_4bit_t *LCD, const uint8_t c_char[], uint8_t Pos);
 void LCD_4bit_Display_ON(LCD_4bit_t *LCD);
 void LCD_4bit_Display_ON(LCD_4bit_t *LCD);

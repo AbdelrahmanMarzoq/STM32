@@ -10,6 +10,8 @@ RM := rm -rf
 -include sources.mk
 -include Startup/subdir.mk
 -include Src/subdir.mk
+-include STM32F103C6_MCAL_Drivers/UART/subdir.mk
+-include STM32F103C6_MCAL_Drivers/RCC/subdir.mk
 -include STM32F103C6_MCAL_Drivers/GPIO/subdir.mk
 -include STM32F103C6_MCAL_Drivers/EXTI/subdir.mk
 -include HAL_Drivers/LCD/subdir.mk
