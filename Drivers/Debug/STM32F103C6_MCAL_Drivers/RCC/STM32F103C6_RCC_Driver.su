@@ -1,4 +1,4 @@
-STM32F103C6_RCC_Driver.c:21:10:RCC_GetSysCLKFreq	4	static
-STM32F103C6_RCC_Driver.c:44:10:RCC_GetHCLKFreq	8	static
-STM32F103C6_RCC_Driver.c:56:10:RCC_GetPCLK1Freq	8	static
-STM32F103C6_RCC_Driver.c:69:10:RCC_GetPCLK2Freq	8	static
+STM32F103C6_RCC_Driver.c:24:10:RCC_GetSysCLKFreq	4	static
+STM32F103C6_RCC_Driver.c:47:10:RCC_GetHCLKFreq	8	static
+STM32F103C6_RCC_Driver.c:59:10:RCC_GetPCLK1Freq	8	static
+STM32F103C6_RCC_Driver.c:72:10:RCC_GetPCLK2Freq	8	static

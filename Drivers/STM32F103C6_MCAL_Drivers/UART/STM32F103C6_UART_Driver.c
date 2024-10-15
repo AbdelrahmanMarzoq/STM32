@@ -166,9 +166,16 @@ void USART_SendData(UART *UART_Conf, uint8_t *TxBuffer)
 {
 
 
-	UART_Conf->UARTx->DR = *TxBuffer;
-	//	if (!((UART_Conf->UARTx->SR) & (1<<7)))
+	while (*TxBuffer != '\0')
+	{
+		UART_Conf->UARTx->DR = *TxBuffer;
 		while(!((UART_Conf->UARTx->SR) & (1<<7)));
+		TxBuffer++;
+	}
+
+	//	if (!((UART_Conf->UARTx->SR) & (1<<7)))
+
+	while(!((UART_Conf->UARTx->SR) & (1<<7)));
 
 }
 

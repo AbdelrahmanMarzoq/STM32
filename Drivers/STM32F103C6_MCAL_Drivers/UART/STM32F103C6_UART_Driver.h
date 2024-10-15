@@ -151,7 +151,7 @@ void USART_INIT(UART *UART_Conf);
 
 /**================================================================
  * @Fn                 	- USART_SendData
- * @brief				- Func that Send your Data
+ * @brief				- Func that Send your Data (String)
  * @param [in]			- Pointer to Your UART & Pointer to Data need to send
  *
  * @retval				- NONE
@@ -161,7 +161,7 @@ void USART_SendData(UART *UART_Conf, uint8_t *TxBuffer);
 
 /**================================================================
  * @Fn                 	- USART_RecieveData
- * @brief				- Func That Recieve Data
+ * @brief				- Func That Recieve Data (1 Byte)
  * @param [in]			- Pointer to Your UART & Pointer to VAR store datat recieved
  *
  * @retval				- NONE

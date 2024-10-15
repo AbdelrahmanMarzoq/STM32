@@ -1,2 +1,2 @@
 main.c:12:13:myWait	24	static
-main.c:21:5:main	32	static
+main.c:21:5:main	48	static
