@@ -67,7 +67,7 @@ void USART_INIT(UART *UART_Conf)
 		USART_GPIO_TX_PINs(&UART_Conf);
 	}
 
-	// Init Data Byte sending
+	// Init Data Byte sending 8bit
 	UART_Conf->UARTx->CR1 &= ~(1<<12);
 
 
@@ -90,6 +90,7 @@ void USART_INIT(UART *UART_Conf)
 	}
 
 	// Init Stop Bit
+	UART_Conf->UARTx->CR2 &= ~(0b11 << 12);
 	if ( UART_Conf->StopBits == UART_StopBits_HALF )
 	{
 		UART_Conf->UARTx->CR2 |= 1<<12;
@@ -134,7 +135,7 @@ void USART_INIT(UART *UART_Conf)
 	}
 	else
 	{
-		UART_Conf->UARTx->CR1 |= ~(0b1111<<5);
+		UART_Conf->UARTx->CR1 &= ~(0b1111<<5);
 		if ( UART_Conf->UARTx == USART1 )
 			NVIC_Disable_USART1;
 		else if ( UART_Conf->UARTx == USART2 )
@@ -153,19 +154,21 @@ void USART_INIT(UART *UART_Conf)
 		PCLK = RCC_GetPCLK1Freq();
 	}
 
+
 	Mantissa = PCLK / (16 * UART_Conf->BaudRate);
 	DIV = (PCLK * 100) / (16 * UART_Conf->BaudRate);
-	DIV -= Mantissa;
-	DIV = DIV * (16/100);
-	UART_Conf->UARTx->BRR = Mantissa << 4 | (DIV & 0xF);
+	DIV -= (Mantissa * 100);
+	DIV *= (16.0/100);
+	UART_Conf->UARTx->BRR  = Mantissa << 4 | (DIV & 0xF);
 }
 
 void USART_SendData(UART *UART_Conf, uint8_t *TxBuffer)
 {
-	if (!((UART_Conf->UARTx->SR) & (1<<7)))
-		while(!((UART_Conf->UARTx->SR) & (1<<7)));
 
-	UART_Conf->UARTx->DR = ((*TxBuffer) & (uint8_t)0xFF);
+
+	UART_Conf->UARTx->DR = *TxBuffer;
+	//	if (!((UART_Conf->UARTx->SR) & (1<<7)))
+		while(!((UART_Conf->UARTx->SR) & (1<<7)));
 
 }
 
@@ -173,7 +176,6 @@ void USART_RecieveData(UART *UART_Conf, uint8_t *RxBuffer)
 {
 	if (!((UART_Conf->UARTx->CR1) & (1<<5)))
 		while(!((UART_Conf->UARTx->SR) & (1<<5)));
-
 
 	if (UART_Conf->Parity == UART_PARITY_DIS)
 	{
@@ -183,6 +185,7 @@ void USART_RecieveData(UART *UART_Conf, uint8_t *RxBuffer)
 	{
 		*RxBuffer = UART_Conf->UARTx->DR & 0x7F;
 	}
+	UART_Conf->UARTx->SR &= ~(1<<5);
 }
 
 static void USART_GPIO_TX_PINs(UART *UART_Conf)

@@ -20,12 +20,18 @@ typedef struct
 	USART_Periphral *UARTx;						// Specifies Which USART Use.
 	// This parameter must be set based on @ref UARTx
 
-	uint8_t   		USART_Mode;     			// Specifies the TX/RX Mode.
-	// This parameter must be set based on @ref UART_Mode_define
+	void(* P_IRQ_CallBack)(void);			//Set the C Function() which will be called once the IRQ  Happen
+
+
+	uint32_t		IRQ_Enable;				//enable or disable UART IRQ TX/RX
+	//@ref UART_IRQ_Enable_define , you can select two or three parameters EX.UART_IRQ_Enable_TXE |UART_IRQ_Enable_TC
 
 
 	uint32_t  		BaudRate; 					// This member configures the UART communication baud rate
 	// This parameter must be set based on @ref UART_BaudRate_define
+
+	uint8_t   		USART_Mode;     			// Specifies the TX/RX Mode.
+		// This parameter must be set based on @ref UART_Mode_define
 
 	uint8_t 		Parity;					//Specifies the parity mode.
 	//@ref UART_Parity_define
@@ -36,12 +42,6 @@ typedef struct
 
 	uint8_t 		StopBits;				//Specifies the number of stop bits transmitted
 	//@ref UART_StopBits_define
-
-	uint8_t			IRQ_Enable;				//enable or disable UART IRQ TX/RX
-	//@ref UART_IRQ_Enable_define , you can select two or three parameters EX.UART_IRQ_Enable_TXE |UART_IRQ_Enable_TC
-
-
-	void(* P_IRQ_CallBack)(void);			//Set the C Function() which will be called once the IRQ  Happen
 
 }UART;
 
