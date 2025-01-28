@@ -128,7 +128,7 @@ typedef struct
 
 
 							/*****************************************/
-							/*     Function Declaration	  	     	 */
+							/*          Function Declaration	  	 */
 							/*****************************************/
 
 

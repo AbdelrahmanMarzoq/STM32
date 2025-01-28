@@ -37,6 +37,34 @@
 #define RCC_USART3_CLK_EN  ((RCC->APB1ENR) |= (1<<18))
 
 
+//               I2C CLOCK EN
+#define RCC_I2C1_CLK_EN  ((RCC->APB1ENR) |= (1<<21))
+#define RCC_I2C2_CLK_EN  ((RCC->APB1ENR) |= (1<<22))
+
+//               SPI CLOCK EN
+#define RCC_SPI1_CLK_EN  ((RCC->APB2ENR) |= (1<<12))
+#define RCC_SPI2_CLK_EN  ((RCC->APB1ENR) |= (1<<14))
+
+
+							/*******************************************/
+							/*           Clock Disable Macros          */
+							/*******************************************/
+
+//               USART CLOCK DIS
+#define RCC_USART1_CLK_DIS	( RCC->APB2RSTR |= (1<<14) )
+#define RCC_USART2_CLK_DIS	( RCC->APB1RSTR |= (1<<17) )
+#define RCC_USART3_CLK_DIS	( RCC->APB1RSTR |= (1<<18) )
+
+//               I2C CLOCK DIS
+#define RCC_I2C1_CLK_DIS  ((RCC->APB1RSTR) |= (1<<21))
+#define RCC_I2C2_CLK_DIS  ((RCC->APB1RSTR) |= (1<<22))
+
+
+//               SPI CLOCK DIS
+#define RCC_SPI1_CLK_DIS  ((RCC->APB2RSTR) |= (1<<12))
+#define RCC_SPI2_CLK_DIS  ((RCC->APB1RSTR) |= (1<<14))
+
+
 uint32_t RCC_GetSysCLKFreq(void);
 uint32_t RCC_GetHCLKFreq(void);
 uint32_t RCC_GetPCLK1Freq(void);

@@ -1,208 +1,158 @@
-/**
- ******************************************************************************
- * @File           : STM32F103C6_I2C_Driver.h
- * @Author         : Abdelrhman Marzoq
- * @Brief          : Driver Header File
- * 			Created on: Oct 10, 2024
- ******************************************************************************
-**/
+/*
+ * STM32F103C6_I2C_Driver.h
+ *
+ *  Created on: Jan 27, 2025
+ *      Author: Abdelrhman Marzoq
+ */
 
-#ifndef _I2C_DRIVER_H_
-#define _I2C_DRIVER_H_
+#ifndef I2C_STM32F103C6_I2C_DRIVER_H_
+#define I2C_STM32F103C6_I2C_DRIVER_H_
 
 
 #include "../STM32F103X6.h"
-#include "../GPIO/STM32F103C6_GPIO_Driver.h"
-#include "../RCC/STM32F103C6_RCC_Driver.h"
-
-
-
-
-#define Writing_Operation   1
-#define MASTER_BYTE_TRANSMIT 0x00070080
-
+#include "../STM32F103C6_MCAL_Drivers/GPIO/STM32F103C6_GPIO_Driver.h"
+#include "../STM32F103C6_MCAL_Drivers/RCC/STM32F103C6_RCC_Driver.h"
 
 
 //        CR1 Reg Bits Pos
-#define PE_BIT_Pos       	0
-#define START_BIT_Pos		8
-#define STOP_BIT_Pos		9
-#define ACK_BIT_POS			10
+#define PE_BIT_Pos       				0
+#define NOSTRETCH_BIT_POS				7
+#define START_BIT_Pos					8
+#define STOP_BIT_Pos					9
+#define ACK_BIT_POS						10
+
 
 //        CR2 Reg Bits Pos
-#define FREQ_BITS_Pos    	0
+#define FREQ_BITS_Pos    				0
+#define ITERREN_BIT_Pos    				8
+#define ITEVTEN_BIT_Pos    				9
+#define ITBUFEN_BIT_Pos    				10
 
-//        CRR Reg Bits Pos
-#define F_S_BIT_Pos      	15
-#define CRR_BITS_Pos     	0
-
-//        TRISE Reg Bits Pos
-#define TRISE_BITS_Pos	 	0
-
-//        OAR1 Reg Bits Pos
-#define ADD_10_BITS_POS     0
-#define ADD_1_7_BITS_POS    1
-#define ADD_MODE_BIT_POS 	15
-
-//        OAR2 Reg Bits Pos
-#define ENDUAL_BIT_POS      0
-#define ADD2_BITS_POS	    1
 
 //        SR1 Reg Bits Pos
-#define SB_BIT_Pos		    0
-#define ADDR_BIT_Pos		1
-#define BTF_BIT_Pos			3
-#define RxNE_BIT_Pos		6
-#define TxE_BIT_Pos  		7
+#define SB_BIT_Pos		   				0
+#define ADDR_BIT_Pos					1
+#define BTF_BIT_Pos						2
+#define ADD10_BIT_Pos					3
+#define RxNE_BIT_Pos					6
+#define TxE_BIT_Pos  					7
 
 
 //        SR2 Reg Bits Pos
-#define BUSY_BIT_Pos        1
+#define BUSY_BIT_Pos        			1
+
+
+//        OAR1 Reg Bits Pos
+#define ADD_10_BITS_POS     			0
+#define ADD_1_7_BITS_POS    			1
+#define ADD_MODE_BIT_POS 				15
+
+//        OAR2 Reg Bits Pos
+#define ENDUAL_BIT_POS      			0
+#define ADD2_BITS_POS	    			1
+
+//        CRR Reg Bits Pos
+#define F_S_BIT_Pos      				15
+#define CRR_BITS_Pos     				0
+
+//        TRISE Reg Bits Pos
+#define TRISE_BITS_Pos	 				0
+
+
+#define	BUFFER_IRQ_EN  					8
+#define EVENT_IRQ_EN					9
+#define ERROR_IRQ_EN					10
 
 
 
+#define RESERVED_FRAME_10BIT_ADDRESS	(0b11110 << 3)
+
+// To Enable or Disable Feature
+#define ENABLE							1U
+#define DISABLE							0U
 
 
 
-
-/**********************************  References  *************************************/
-
-// @ref I2Cx
-// I2C1					For using I2C1
-// I2C2					For using I2C2
-
-
-// @ref I2C_Mode
 typedef enum
 {
-	SM_Mode,                    // I2C Standard Mode Clk Up to 100KHz   (Recommended)
-	FM_Mode						// I2C Fast Mode CLK up to 400KHz		(Not Supported in Driver)
+	WRITE,
+	READ
+}W_R;
+
+typedef enum
+{
+	SM_MODE,
+	FM_MODE
 }I2C_Mode;
 
-// @ref SCL_Speed
-typedef enum
-{
-	SCL_50KHz 	= 50000,                    	// I2C SCL Bus Speed 50KHz							For SM Mode
-	SCL_100KHz 	= 100000,						// I2C SCL Bus Speed 100KHz			(Recommended)	For SM Mode
-	/******************************* FM Mode not supported in driver *******************************/
-	SCL_200KHz 	= 200000,						// I2C SCL Bus Speed 200KHz							For FM Mode
-	SCL_400KHz 	= 400000						// I2C SCL Bus Speed 400KHz							For FM Mode
-}SCL_Speed;
-
-
-// @ref Address_Mode
-typedef enum
-{
-	Bit_7,
-	Bit_10
-}Address_Mode;
-
-// @ref Dual_EN
-typedef enum
-{
-	DISABLE,
-	ENABLE
-}Dual_EN;
-
 
 typedef enum
 {
-	Start,
-	Repeated
-}Start_Cond;
+	_7BIT_ADD,
+	_10BIT_ADD
+}AddressMode;
 
 typedef enum
 {
-	Without_Stop,
-	With_Stop
-}Stop_Cond;
+	START,
+	RepeatedSTART
+}START_t;
 
-
-/***********************************************************************/
-
-
-/* Implement it if you need MicroController Act as Slave not Master */
-typedef struct
+typedef enum
 {
-	 Address_Mode Mode;				// Choosing Address Mode based on @ref Address_Mode
-	 Dual_EN Dual;					// Enable & Disable Dual Address based on @ref Dual_EN
-	 uint16_t Address1;				// Specify First Address
-	 uint16_t Address2;				// Specify Second Address if Dual is Enabled
-}Slave;
+	WithSTOP,
+	WithoutSTOP
+}STOP_t;
 
 typedef struct
 {
-	I2C_Periphral *I2Cx;					// Specifies Which I2C Use.
-											// This parameter must be set based on @ref I2Cx
+	START_t	START_Cond;
 
-	I2C_Mode	   Mode;					// Specifies Which I2C Mode.
-											// This parameter must be set based on @ref I2C_Mode
 
-	SCL_Speed	   SCL_Speed;				// Specifies SCL Bus Speed.
-											// This parameter must be set based on @ref SCL_Speed
+	STOP_t	STOP_Cond;
+}SS_State;
+
+typedef struct
+{
+	I2C_Periphral 	*I2Cx;
+
+	I2C_Mode		SF_Mode;
+
+	unsigned int 	SCL_Speed;
+
+	unsigned char	SCL_Streach_EN;
+
+	unsigned char	IRQ_EN;
+
+	AddressMode		Add_Mode;
+
+	unsigned int 	OwnAddress1;
+
+	unsigned char	Dual_EN;
+
+	unsigned int	OwnAddress2;
+
+
 
 }I2C;
 
 
 
+void I2C_INIT(I2C * hi2c);
 
-/*
- * =======================================================================================
- * 										APIs
- * =======================================================================================
-*/
+void I2C_ActivateIRQ_Bit(I2C * hi2c, unsigned int IRQ_Activate);
 
-/**================================================================
- * @Fn                 	- I2C_INIT
- * @brief				- Init I2C Periphral
- *  					  Must Call First Befor any Sending or Recieving Data
- * @param [in]			- Pointer to I2C
- *
- * @retval				- NONE
- * Note					- NONE
- *================================================================*/
-void I2C_INIT(I2C *I2C_Conf);
+void I2C_Master_Transmit(I2C * hi2c, unsigned int DevAddress, SS_State *Start_Stop,AddressMode Mode, unsigned char *payload, unsigned int lenght);
 
-/**================================================================
- * @Fn                 	- I2C_Slave_Init
- * @brief				- Init MCU as Slave
- * @param [in]			- Pointer to I2C , Pointer to struct Include Address to act as Slave
- *
- * @retval				- NONE
- * Note					- NONE
- *================================================================*/
-void I2C_Slave_Init (I2C *I2C_Conf, Slave *Address);
+void I2C_Master_Recieve(I2C * hi2c, unsigned int DevAddress, SS_State *Start_Stop,AddressMode Mode, unsigned char *payload, unsigned int lenght);
+
+void I2C_Slave_Transmit(I2C * hi2c);
+
+void I2C_Slave_Recieve(I2C * hi2c);
 
 
-/**================================================================
- * @Fn                 	- I2C_Master_Write
- * @brief				-
- * @param [in]			-
- *
- * @retval				- NONE
- * Note					- NONE
- *================================================================*/
-void I2C_Master_Write(I2C *I2C_Conf, Address_Mode Mode, uint16_t devAddr, uint8_t *data, uint32_t dataLength, Stop_Cond Stop,Start_Cond Start);
-
-/**================================================================
- * @Fn                 	- I2C_Master_Read
- * @brief				-
- * @param [in]			-
- *
- * @retval				- NONE
- * Note					- NONE
- *================================================================*/
-void I2C_Master_Read(I2C *I2C_Conf, Address_Mode Mode, uint16_t devAddr, uint8_t *dataOut, uint32_t dataLength, Stop_Cond Stop, Start_Cond Start);
-
-/**================================================================
- * @Fn                 	- I2C_deINIT
- * @brief				- De Init I2C Bus (Free Pins)
- * @param [in]			- Pointer to I2C
- *
- * @retval				- NONE
- * Note					- NONE
- *================================================================*/
-void I2C_deINIT(I2C *I2C_Conf);
 
 
-#endif
+
+
+#endif /* I2C_STM32F103C6_I2C_DRIVER_H_ */

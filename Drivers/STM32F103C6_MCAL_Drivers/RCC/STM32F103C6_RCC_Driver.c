@@ -21,6 +21,7 @@ static const uint8_t AHBPrescTrable[17] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5
 //01: HSE oscillator used as system clock
 //10: PLL used as system clock
 //11: Not applicable
+
 uint32_t RCC_GetSysCLKFreq(void)
 {
 	switch(((RCC->CFGR >> 2) & 0b11))
@@ -29,7 +30,7 @@ uint32_t RCC_GetSysCLKFreq(void)
 	/* For future Professional RCC Driver this for External Crystal but default I use Internal Crystal 8MHZ */
 	case 1:
 	case 2:
-	default: return;
+	default: return 16000000; // To Do From RCC Professional Driver
 	}
 }
 

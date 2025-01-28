@@ -6,7 +6,20 @@ Src/main.o: ../Src/main.c \
  ../Src/../STM32F103C6_MCAL_Drivers/UART/../GPIO/STM32F103C6_GPIO_Driver.h \
  ../Src/../STM32F103C6_MCAL_Drivers/UART/../GPIO/../STM32F103X6.h \
  ../Src/../STM32F103C6_MCAL_Drivers/UART/../GPIO/../RCC/STM32F103C6_RCC_Driver.h \
- ../Src/../STM32F103C6_MCAL_Drivers/GPIO/STM32F103C6_GPIO_Driver.h
+ ../Src/../STM32F103C6_MCAL_Drivers/GPIO/STM32F103C6_GPIO_Driver.h \
+ ../Src/../STM32F103C6_MCAL_Drivers/SPI/STM32F103C6_SPI_Driver.h \
+ ../Src/../STM32F103C6_MCAL_Drivers/SPI/../STM32F103X6.h \
+ ../Src/../STM32F103C6_MCAL_Drivers/SPI/../GPIO/STM32F103C6_GPIO_Driver.h \
+ ../Src/../STM32F103C6_MCAL_Drivers/SPI/../RCC/STM32F103C6_RCC_Driver.h \
+ ../Src/../STM32F103C6_MCAL_Drivers/I2C/STM32F103C6_I2C_Driver.h \
+ ../Src/../STM32F103C6_MCAL_Drivers/I2C/../STM32F103X6.h \
+ ../Inc/../STM32F103C6_MCAL_Drivers/GPIO/STM32F103C6_GPIO_Driver.h \
+ ../Inc/../STM32F103C6_MCAL_Drivers/RCC/STM32F103C6_RCC_Driver.h \
+ ../Src/../STM32F103C6_MCAL_Drivers/EXTI/EXTI.h \
+ ../Src/../STM32F103C6_MCAL_Drivers/EXTI/../RCC/STM32F103C6_RCC_Driver.h \
+ ../Src/../HAL_Drivers/EEPROM/EEPROM.h \
+ ../Inc/../STM32F103C6_MCAL_Drivers/I2C/STM32F103C6_I2C_Driver.h \
+ ../Src/../HAL_Drivers/LCD/LCD.h
 
 ../Src/../STM32F103C6_MCAL_Drivers/UART/STM32F103C6_UART_Driver.h:
 
@@ -23,3 +36,29 @@ Src/main.o: ../Src/main.c \
 ../Src/../STM32F103C6_MCAL_Drivers/UART/../GPIO/../RCC/STM32F103C6_RCC_Driver.h:
 
 ../Src/../STM32F103C6_MCAL_Drivers/GPIO/STM32F103C6_GPIO_Driver.h:
+
+../Src/../STM32F103C6_MCAL_Drivers/SPI/STM32F103C6_SPI_Driver.h:
+
+../Src/../STM32F103C6_MCAL_Drivers/SPI/../STM32F103X6.h:
+
+../Src/../STM32F103C6_MCAL_Drivers/SPI/../GPIO/STM32F103C6_GPIO_Driver.h:
+
+../Src/../STM32F103C6_MCAL_Drivers/SPI/../RCC/STM32F103C6_RCC_Driver.h:
+
+../Src/../STM32F103C6_MCAL_Drivers/I2C/STM32F103C6_I2C_Driver.h:
+
+../Src/../STM32F103C6_MCAL_Drivers/I2C/../STM32F103X6.h:
+
+../Inc/../STM32F103C6_MCAL_Drivers/GPIO/STM32F103C6_GPIO_Driver.h:
+
+../Inc/../STM32F103C6_MCAL_Drivers/RCC/STM32F103C6_RCC_Driver.h:
+
+../Src/../STM32F103C6_MCAL_Drivers/EXTI/EXTI.h:
+
+../Src/../STM32F103C6_MCAL_Drivers/EXTI/../RCC/STM32F103C6_RCC_Driver.h:
+
+../Src/../HAL_Drivers/EEPROM/EEPROM.h:
+
+../Inc/../STM32F103C6_MCAL_Drivers/I2C/STM32F103C6_I2C_Driver.h:
+
+../Src/../HAL_Drivers/LCD/LCD.h:

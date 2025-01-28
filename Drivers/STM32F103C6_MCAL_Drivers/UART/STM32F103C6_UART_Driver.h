@@ -57,7 +57,7 @@ typedef struct
 //@ref UART_Mode_define
 #define USART_MODE_RX              0 								//Set RE Bit in USART_CR1
 #define USART_MODE_TX              1								//Set TE Bit in USART_CR1
-#define USART_MODE_TX_RX           2		//Set TE & RE Bits in USART_CR1
+#define USART_MODE_TX_RX           2								//Set TE & RE Bits in USART_CR1
 
 //@ref UART_BaudRate_define
 
@@ -142,6 +142,7 @@ typedef struct
 /**================================================================
  * @Fn                 	- USART_INIT
  * @brief				- Init USART Periphral
+ * 						  Must Call This func Befor any Sending or Recieving Data
  * @param [in]			- Pointer to Your UART
  *
  * @retval				- NONE

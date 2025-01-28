@@ -50,8 +50,6 @@ typedef struct
 	uint8_t     IRQ_EN;         // This Var For IF EXTI Need to Enable or Disable
 								// This Parameter must be based on @ref ENABLE_Define
 
-
-
 }EXIT_t;
 
 
@@ -61,7 +59,7 @@ typedef struct
 
 //@ref ENABLE_Define
 #define DIS_EXTI             0      // For Enable EXTI
-#define EN_EXTI			1	   // For Disable EXTI
+#define EN_EXTI				 1	   // For Disable EXTI
 
 // @ref Trigger_Define
 #define RISING              0      // For Detecting Rising Edge

@@ -1,416 +1,370 @@
-/**
- ******************************************************************************
- * @File           : STM32F103C6_I2C_Driver.c
- * @Author         : Abdelrhman Marzoq
- * @Brief          : I2C Driver
- * 			Created on: Oct 10, 2024
- ******************************************************************************
-**/
+/*
+ * STM32F103C6_I2C_Driver.c
+ *
+ *  Created on: Jan 27, 2025
+ *      Author: Abdelrhman Marzoq
+ */
+
+
+
 
 #include "STM32F103C6_I2C_Driver.h"
 
+static void GPIO_PINS_INIT(I2C_Periphral *I2Cx);
 
-/*
- * =======================================================================================
- * 										Generic Variables
- * =======================================================================================
-*/
 
-//#define Polling(X, EV) while(!Get_Status(X, EV))
+#define SET_BIT(REG, BIT_NO) 		(REG |= (1 << BIT_NO))
+#define CLEAR_BIT(REG, BIT_NO) 		(REG &= (~(1 << BIT_NO)))
+#define READ_BIT(REG, BIT_NO)		((REG >> BIT_NO) & 1)
 
-typedef enum
+
+
+
+
+static void Generate_START(I2C * hi2c, START_t START_Cond);
+static void Generate_STOP(I2C * hi2c, STOP_t STOP_Cond);
+static void Master_Transmit_Address(I2C * hi2c, unsigned int DevAddress ,AddressMode Mode, W_R COMMAND);
+
+
+
+void I2C_INIT(I2C * hi2c)
 {
-	Busy,
-	EV5,
-	EV6,
-	EV8_1,
-	EV8,
-	EV8_2,
-	EV7
+	unsigned int CCR, PCLK = 0, FREQ = 0;
 
 
-}Flag_Type;
+	GPIO_PINS_INIT(hi2c->I2Cx);
 
-typedef enum
-{
-	RESET,
-	SET
-}Status;
-
-
-/*
- * =======================================================================================
- * 										Generic Functions
- * =======================================================================================
-*/
-static void I2C_GPIO_PINs(I2C_Periphral *I2Cx);
-
-static void Generate_Start(I2C_Periphral *I2Cx, Start_Cond Start);
-
-static void Generate_Stop(I2C_Periphral *I2Cx);
-
-static Status Get_Status(I2C_Periphral *I2Cx, Flag_Type Flag);
+	// Disable Peripheral
+	CLEAR_BIT(hi2c->I2Cx->CR1, PE_BIT_Pos);
 
 
 
+	/************************************** CR1 Reg **************************************/
+	if (hi2c->SCL_Streach_EN == ENABLE)
+		CLEAR_BIT(hi2c->I2Cx->CR1, NOSTRETCH_BIT_POS);
+	else if (hi2c->SCL_Streach_EN == DISABLE)
+		SET_BIT(hi2c->I2Cx->CR1, NOSTRETCH_BIT_POS);
 
 
-/*
- * =======================================================================================
- * 										APIs
- * =======================================================================================
-*/
-
-
-/*The following is the required sequence in master mode.
-* 1- Program the peripheral input clock in I2C_CR2 Register in order to generate correct timings
-* 2- Configure the clock control registers
-* 3- Configure the rise time register
-* 4- Program the I2C_CR1 register to enable the peripheral
-*/
-
-void I2C_INIT(I2C *I2C_Conf)
-{
-	uint32_t PCLK = 0, FREQ = 0;
-	if (I2C_Conf->I2Cx == I2C1)
-	{
-		RCC_I2C1_CLK_EN;
-		I2C_GPIO_PINs(I2C1);
-	}
-	else if (I2C_Conf->I2Cx == I2C2)
-	{
-		RCC_I2C2_CLK_EN;
-		I2C_GPIO_PINs(I2C2);
-	}
-
-	/*1- Program the peripheral input clock in I2C_CR2 Register in order to generate correct timings
-	* Bits 5:0 FREQ[5:0]: Peripheral clock frequency in CR2
-	* The minimum allowed frequency is 2 MHz,
-	* the maximum frequency is limited by the maximum APB frequency and cannot exceed
-	* 50 MHz (peripheral intrinsic maximum limit).
-	* 0b000000: Not allowed
-	* 0b000001: Not allowed
-	* 0b000010: 2 MHz
-	* ...
-	* 0b110010: 50 MHz
-	* Higher than 0b100100: Not allowed
-	*/
+	/************************************** CR2 Reg **************************************/
 	PCLK = RCC_GetPCLK1Freq();
 	FREQ = PCLK / 1000000;
-	I2C_Conf->I2Cx->CR2 &= ~(0b111111 << FREQ_BITS_Pos);
-	I2C_Conf->I2Cx->CR2 |= FREQ << FREQ_BITS_Pos;
+	// Min CLOCK = 2MHz to EN I2C
+	if (FREQ < 2) return;
 
+	// Clearin FREQ Bits
+	hi2c->I2Cx->CR2 &= ~(0b111111 << FREQ_BITS_Pos);
+	// Set FREQ OF SCL
+	hi2c->I2Cx->CR2 |= FREQ << FREQ_BITS_Pos;
 
-	/*2- Configure the clock control registers
-	* The CCR register must be configured only when the I2C is disabled (PE = 0).
-	* Thigh = CCR * Tpclk
-	* Ti2c = Thigh + Tlow
-	* Thigh = Tlow (Duty cycle 50%)
-	* CCR = Thigh / Tpclk || (Ti2c/2) / Tpclk || Fpclk / (Fi2c*2)
-	* CCR = Fpclk / (Fi2c*2)
-	*/
-
-	// Clear PE Bit to config CCR Reg
-	I2C_Conf->I2Cx->CR1 &= ~(0b1 << PE_BIT_Pos);
-
-	if (I2C_Conf->Mode == SM_Mode)
+	if (hi2c->IRQ_EN == DISABLE)
 	{
-		// Enable SM_Mode
-		I2C_Conf->I2Cx->CR1 &= ~(0b1 << F_S_BIT_Pos);
-		I2C_Conf->I2Cx->CCR = ((PCLK / (I2C_Conf->SCL_Speed << 1)) & 0xFFF) << CRR_BITS_Pos;
-	}
-	else
-	{
-		// To Do
+		// Disable IRQ
+		CLEAR_BIT(hi2c->I2Cx->CR2, ITERREN_BIT_Pos);
+		CLEAR_BIT(hi2c->I2Cx->CR2, ITEVTEN_BIT_Pos);
+		CLEAR_BIT(hi2c->I2Cx->CR2, ITBUFEN_BIT_Pos);
 	}
 
-	/*3- Configure the rise time register
-	 * FREQ + 1
-	 */
-	I2C_Conf->I2Cx->TRISE = (((I2C_Conf->I2Cx->CR2 << FREQ_BITS_Pos) & 0x3F) + 1 ) & 0x3F << TRISE_BITS_Pos;
 
-	// Set PE Bit to Enable I2C Periphral
-	I2C_Conf->I2Cx->CR1 |= (0b1 << PE_BIT_Pos);
-}
+	/************************************** OAR1 Reg **************************************/
+	/**************************************    &&    **************************************/
+	/************************************** OAR2 Reg **************************************/
 
-void I2C_Slave_Init (I2C *I2C_Conf, Slave *Address)
-{
-	if (Address->Mode == Bit_7)
+	// Init 7 Bit or 10 Bit Address in Slave Mode
+	if (hi2c->Add_Mode == _7BIT_ADD)
 	{
-		I2C_Conf->I2Cx->OAR1 &= ~(0b1 << ADD_MODE_BIT_POS);
-		if (Address->Dual == ENABLE)
+		CLEAR_BIT(hi2c->I2Cx->OAR1, ADD_MODE_BIT_POS);
+		hi2c->I2Cx->OAR1 |= ( (hi2c->OwnAddress1 & 0x7F) << ADD_1_7_BITS_POS);
+		if (hi2c->Dual_EN == ENABLE)
+		/* Set Dual Address  for 7 Bit Addressing Only*/
 		{
-			I2C_Conf->I2Cx->OAR2 |= (0b1 << ENDUAL_BIT_POS);
-			I2C_Conf->I2Cx->OAR2 |= ((Address->Address2 & (0x7F))  << ADD2_BITS_POS);
-		}
-		I2C_Conf->I2Cx->OAR1 |= ((Address->Address1 & (0x7F)) << ADD_1_7_BITS_POS);
-	}
-	else if (Address->Mode == Bit_10)
-	{
-//		To Do
-	}
-}
-
-
-
-void I2C_Master_Write(I2C *I2C_Conf, Address_Mode Mode, uint16_t devAddr, uint8_t *data, uint32_t dataLength, Stop_Cond Stop,Start_Cond Start)
-{
-//	Generate Start According to Start_Condition (Normal Start with Stop or Repeated Start )
-	Generate_Start(I2C_Conf->I2Cx, Start);
-
-	if (Mode == Bit_7)
-	{
-		uint32_t i = 0;
-//		Polling Untill Start Bit Is generated Succesfully
-//		EV5: SB=1, cleared by reading SR1 register followed by writing DR register with Address.
-		while(!Get_Status(I2C_Conf->I2Cx, EV5));
-
-		// Send Slave Address on Bus
-		I2C_Conf->I2Cx->DR =  ((devAddr  & 0x7F) << 1) | Writing_Operation;
-
-//		Polling till Address Sent
-//		EV6: ADDR=1, cleared by reading SR1 register followed by reading SR2.
-		while(!Get_Status(I2C_Conf->I2Cx, EV6));
-//		Polling Till DR empty
-//		EV8_1: TxE=1, shift register empty, data register empty, write Data1 in DR.
-		while(!Get_Status(I2C_Conf->I2Cx, EV8_1));
-
-		for (i = 0; i < dataLength; i++)
-		{
-			I2C_Conf->I2Cx->DR =  *data;
-			while(!Get_Status(I2C_Conf->I2Cx, EV8));
-			data++;
-		}
-//		EV8_2: TxE=1, BTF = 1, Program Stop request. TxE and BTF are cleared by hardware by the Stop condition
-//		(Option to Ensure that there is no Data in DR) (I Will not terminate For loop till I Send all data )
-//		while(!Get_Status(I2C_Conf->I2Cx, EV8_2))
-
-//		Generate Stop Bit if Start isn`t Repeated
-		if (Stop != Without_Stop)
-		{
-			Generate_Stop(I2C_Conf->I2Cx);
+			SET_BIT(hi2c->I2Cx->OAR2, ENDUAL_BIT_POS);
+			hi2c->I2Cx->OAR2 |= ( (hi2c->OwnAddress2 & 0x7F) << ADD2_BITS_POS);
 		}
 	}
-	/* To Do In Future 10 Bit Address Mode */
-	else if (Mode == Bit_10)
+	else if (hi2c->Add_Mode == _10BIT_ADD)
 	{
-//		To Do
+		SET_BIT(hi2c->I2Cx->OAR1, ADD_MODE_BIT_POS);
+		hi2c->I2Cx->OAR1 |= ( (hi2c->OwnAddress1 & 0x3FF) << ADD_10_BITS_POS);
 	}
+
+	/************************************** CRR Reg **************************************/
+	if (hi2c->SF_Mode == FM_MODE)
+	{
+		SET_BIT(hi2c->I2Cx->CCR, F_S_BIT_Pos);
+		// To Do Init
+	}
+	else if (hi2c->SF_Mode == SM_MODE)
+	{
+		CLEAR_BIT(hi2c->I2Cx->CCR, F_S_BIT_Pos);
+		CCR = PCLK/( 2 * hi2c->SCL_Speed);
+		hi2c->I2Cx->CCR |= ((CCR & 0x1FF) << CRR_BITS_Pos);
+	}
+
+	/************************************** TRISE Reg **************************************/
+
+	hi2c->I2Cx->TRISE |= ( (FREQ + 1) << TRISE_BITS_Pos);
+
+	// Enable Peripheral
+	SET_BIT(hi2c->I2Cx->CR1, PE_BIT_Pos);
 }
 
 
-void I2C_Master_Read(I2C *I2C_Conf, Address_Mode Mode, uint16_t devAddr, uint8_t *dataOut, uint32_t dataLength, Stop_Cond Stop,Start_Cond Start)
+void I2C_ActivateIRQ_Bit(I2C * hi2c, unsigned int IRQ_Activate)
 {
-//	Enable Ack Bit
-	I2C_Conf->I2Cx->CR1 |= 0b1 << ACK_BIT_POS;
+	if ( (IRQ_Activate & BUFFER_IRQ_EN) == BUFFER_IRQ_EN) SET_BIT(hi2c->I2Cx->CR2, ITERREN_BIT_Pos);
 
-	Generate_Start(I2C_Conf->I2Cx, Start);
+	if ( (IRQ_Activate & EVENT_IRQ_EN) == EVENT_IRQ_EN) SET_BIT(hi2c->I2Cx->CR2, ITEVTEN_BIT_Pos);
 
-	if (Mode == Bit_7)
+	if ( (IRQ_Activate & ERROR_IRQ_EN) == ERROR_IRQ_EN) SET_BIT(hi2c->I2Cx->CR2, ITBUFEN_BIT_Pos);
+}
+
+void I2C_Master_Transmit(I2C * hi2c, unsigned int DevAddress, SS_State *Start_Stop,AddressMode Mode, unsigned char *payload, unsigned int lenght)
+{
+	// Temp VAR
+	volatile unsigned int dummy_reg;
+
+	// Check if The Peripheral in Disable or Enable
+	if (!READ_BIT(hi2c->I2Cx->CR1, PE_BIT_Pos))
 	{
-		while(!Get_Status(I2C_Conf->I2Cx, EV5));
-
-//		Set Device Address at DR Reg
-		I2C_Conf->I2Cx->DR |= ((devAddr  & 0x7F) << 1);
-//		Clearing First Bit Reading Operation
-		I2C_Conf->I2Cx->DR &= ~(0b1 << 0);
-
-//		Polling till Address Sent
-//		EV6: ADDR=1, cleared by reading SR1 register followed by reading SR2.
-		while(!Get_Status(I2C_Conf->I2Cx, EV6));
-
-		if (dataLength)
-		{
-			for (uint32_t i = 0; i < dataLength; i++)
-			{
-//				EV7: RxNE = 1 Cleared by Reading DR Reg
-				while(!Get_Status(I2C_Conf->I2Cx, EV6));
-				*dataOut = I2C_Conf->I2Cx->DR;
-				dataOut++;
-			}
-		}
-
-//		Disable Ack Bit
-		I2C_Conf->I2Cx->CR1 &= ~(0b1 << ACK_BIT_POS);
-
-		if (Stop != Without_Stop)
-		{
-			Generate_Stop(I2C_Conf->I2Cx);
-		}
+		// Enable Peripheral
+		SET_BIT(hi2c->I2Cx->CR1, PE_BIT_Pos);
 	}
-	/* To Do In Future 10 Bit Address Mode */
-	else if (Mode == Bit_10)
+
+	/***************************** Start of First State **********************************/
+	// Generate Start
+	Generate_START(hi2c, Start_Stop->START_Cond);
+	// Polling Untill Start Send
+	while (!READ_BIT(hi2c->I2Cx->SR1, SB_BIT_Pos));
+
+	/******************************* End of First State **********************************/
+
+	/******************************* Start of Second State *******************************/
+	// Clearing SB Bit
+	// Reading SR1
+	// Writing on DR Reg with Data
+	dummy_reg = hi2c->I2Cx->SR1;
+
+	Master_Transmit_Address(hi2c, DevAddress, Mode, WRITE);
+
+	// Polling Untill Address Send
+	while (!READ_BIT(hi2c->I2Cx->SR1, ADDR_BIT_Pos));
+	/******************************* End of Second State *********************************/
+
+	/******************************* Start of Third State *******************************/
+	// 									Send Data
+
+	// Clear ADDR Bit Reading Both SR1,SR2 Reg
+	dummy_reg = hi2c->I2Cx->SR1 | hi2c->I2Cx->SR2;
+
+	for (unsigned int Counter = 0; Counter < lenght; Counter++)
 	{
-//		To Do
+		while(!READ_BIT(hi2c->I2Cx->SR1, TxE_BIT_Pos));
+		hi2c->I2Cx->DR = payload[Counter];
 	}
+	/******************************* End of Third State **********************************/
+
+
+	/******************************* Start of Fourth State *******************************/
+
+	if (Start_Stop->STOP_Cond == WithSTOP)
+	{
+		// Polling on Last EVENT
+		while ( !READ_BIT(hi2c->I2Cx->SR1, TxE_BIT_Pos) );
+		while ( !READ_BIT(hi2c->I2Cx->SR1, BTF_BIT_Pos) );
+	}
+
+	Generate_STOP(hi2c, Start_Stop->STOP_Cond);
+
+
+	/******************************* End of Foruth State   *******************************/
 
 }
 
 
-void I2C_deINIT(I2C *I2C_Conf)
+void I2C_Master_Recieve(I2C * hi2c, unsigned int DevAddress, SS_State *Start_Stop,AddressMode Mode, unsigned char *payload, unsigned int lenght)
 {
-	if (I2C_Conf->I2Cx == I2C1)
+	// Temp VAR
+	volatile unsigned int dummy_reg;
+
+	// Enable ACK Bit
+	SET_BIT(hi2c->I2Cx->CR1, ACK_BIT_POS);
+
+
+	// Check if The Peripheral in Disable or Enable
+	if (!READ_BIT(hi2c->I2Cx->CR1, PE_BIT_Pos))
 	{
-		RCC_I2C1_CLK_DIS;
-		NVIC_Disable_ER_I2C1;
-		NVIC_Disable_EV_I2C1;
+		// Enable Peripheral
+		SET_BIT(hi2c->I2Cx->CR1, PE_BIT_Pos);
 	}
-	else if (I2C_Conf->I2Cx == I2C2)
+
+	/***************************** Start of First State **********************************/
+	// Generate Start
+	Generate_START(hi2c, Start_Stop->START_Cond);
+	// Polling Untill Start Send
+	while (!READ_BIT(hi2c->I2Cx->SR1, SB_BIT_Pos));
+
+	/******************************* End of First State **********************************/
+
+	/******************************* Start of Second State *******************************/
+	// Clearing SB Bit
+	// Reading SR1
+	// Writing on DR Reg with Data
+	dummy_reg = hi2c->I2Cx->SR1;
+
+	Master_Transmit_Address(hi2c, DevAddress, Mode, READ);
+
+	// Polling Untill Address Send
+	while (!READ_BIT(hi2c->I2Cx->SR1, ADDR_BIT_Pos));
+	/******************************* End of Second State *********************************/
+
+	/******************************* Start of Third State *******************************/
+	// 									Recieve Data
+
+	// Clear ADDR Bit Reading Both SR1,SR2 Reg
+	dummy_reg = hi2c->I2Cx->SR1 | hi2c->I2Cx->SR2;
+
+	for (unsigned int Counter = 0; Counter < (lenght-1); Counter++)
 	{
-		RCC_I2C2_CLK_DIS;
-		NVIC_Disable_ER_I2C2;
-		NVIC_Disable_EV_I2C2;
+		while(!READ_BIT(hi2c->I2Cx->SR1, 6));
+		payload[Counter] = hi2c->I2Cx->DR;
 	}
+
+	// Disable ACK Bit (NACK)
+	CLEAR_BIT(hi2c->I2Cx->CR1, ACK_BIT_POS);
+
+	// Recieve the data with NACK Sending
+	while(!READ_BIT(hi2c->I2Cx->SR1, 6));
+	payload[lenght-1] = hi2c->I2Cx->DR;
+
+	Generate_STOP(hi2c, Start_Stop->STOP_Cond);
+
+
+
 }
 
-/*
- * =======================================================================================
- * 										Generic Functions
- * =======================================================================================
-*/
 
-
-static void I2C_GPIO_PINs(I2C_Periphral *I2Cx)
+void I2C_Slave_Transmit(I2C * hi2c)
 {
-	// Setting Pins from recommended As Mentioned in Data Sheet
-	GPIO_PinConfig_t I2C_Pins;
+
+}
+
+
+void I2C_Slave_Recieve(I2C * hi2c)
+{
+
+}
+
+
+
+
+static void GPIO_PINS_INIT(I2C_Periphral *I2Cx)
+{
+
+	GPIO_PinConfig_t I2C_PINS;
+
+	// Common Configuration between I2C1,I2C2
+	I2C_PINS.GPIO_OUTPUT_Speed = GPIO_SPEED_2M;
+	I2C_PINS.GPIO_MODE = GPIO_MODE_OUTPUT_AF_OD;
+	I2C_PINS.GPIOx = GPIOB;
+	RCC_GPIOB_CLK_EN;
 	if (I2Cx == I2C1)
 	{
-		//SCL : PB6
-		I2C_Pins.GPIOx = GPIOB;
-		I2C_Pins.GPIO_MODE = GPIO_MODE_OUTPUT_AF_OD;
-		I2C_Pins.GPIO_OUTPUT_Speed = GPIO_SPEED_2M;
-		I2C_Pins.GPIO_PinNumber = GPIO_PIN6;
-		GPIO_INIT(&I2C_Pins);
+		// Enable Clock For I2C1
+		RCC_I2C1_CLK_EN;
 
-		//SDA : PB7
-		I2C_Pins.GPIOx = GPIOB;
-		I2C_Pins.GPIO_MODE = GPIO_MODE_OUTPUT_AF_OD;
-		I2C_Pins.GPIO_OUTPUT_Speed = GPIO_SPEED_2M;
-		I2C_Pins.GPIO_PinNumber = GPIO_PIN7;
-		GPIO_INIT(&I2C_Pins);
+		// SCL : PB6
+		I2C_PINS.GPIO_PinNumber = GPIO_PIN6;
+		GPIO_INIT(&I2C_PINS);
+
+		// SDA : PB7
+		I2C_PINS.GPIO_PinNumber = GPIO_PIN7;
+		GPIO_INIT(&I2C_PINS);
 	}
 	else if (I2Cx == I2C2)
 	{
-		//SCL : PB10
-		I2C_Pins.GPIOx = GPIOB;
-		I2C_Pins.GPIO_MODE = GPIO_MODE_OUTPUT_AF_OD;
-		I2C_Pins.GPIO_OUTPUT_Speed = GPIO_SPEED_2M;
-		I2C_Pins.GPIO_PinNumber = GPIO_PIN10;
-		GPIO_INIT(&I2C_Pins);
+		// Enable Clock For I2C2
+		RCC_I2C2_CLK_EN;
 
-		//SDA : PB11
-		I2C_Pins.GPIOx = GPIOB;
-		I2C_Pins.GPIO_MODE = GPIO_MODE_OUTPUT_AF_OD;
-		I2C_Pins.GPIO_OUTPUT_Speed = GPIO_SPEED_2M;
-		I2C_Pins.GPIO_PinNumber = GPIO_PIN11;
-		GPIO_INIT(&I2C_Pins);
+		// SCL : PB6
+		I2C_PINS.GPIO_PinNumber = GPIO_PIN10;
+		GPIO_INIT(&I2C_PINS);
+
+		// SDA : PB7
+		I2C_PINS.GPIO_PinNumber = GPIO_PIN11;
+		GPIO_INIT(&I2C_PINS);
 	}
 }
 
-
-static void Generate_Start(I2C_Periphral *I2Cx, Start_Cond Start)
+static void Generate_START(I2C * hi2c, START_t START_Cond)
 {
-	if (Start != Repeated)
+
+	if (START_Cond == START)
 	{
-		// Polling on the bus Untill The Bus not busy
-		while( !(Get_Status(I2Cx, Busy)) );
+		// Polling Untill Bus be Free to win arbitration
+		while(READ_BIT(hi2c->I2Cx->SR2, BUSY_BIT_Pos));
 	}
-
-//	Bit 8 START: Start generation
-//	This bit is set and cleared by software and cleared by hardware when start is sent or PE=0.
-//	In Master Mode:
-//	0: No Start generation
-//	1: start generation
-
-	I2Cx->CR1 |= 0b1 << START_BIT_Pos;
-
+	// Send START Bit
+	SET_BIT(hi2c->I2Cx->CR1, START_BIT_Pos);
 }
 
-static void Generate_Stop(I2C_Periphral *I2Cx)
-{
-//	Bit 9 STOP: Stop generation
-//	The bit is set and cleared by software, cleared by hardware when a Stop condition is
-//	detected, set by hardware when a timeout error is detected.
-//	In Master Mode:
-//	0: No Stop generation.
-//	1: Stop generation after the current byte transfer or after the current Start condition is sent
 
-	I2Cx->CR1 |= 0b1 << STOP_BIT_Pos;
-}
-
-static Status Get_Status(I2C_Periphral *I2Cx, Flag_Type Flag)
+static void Master_Transmit_Address(I2C * hi2c, unsigned int DevAddress ,AddressMode Mode, W_R COMMAND)
 {
-	Status bitStatus = RESET;
-	uint32_t dummyRead;
-	switch(Flag)
+	if (Mode == _7BIT_ADD)
 	{
-	case Busy :
-	{
-		if (I2Cx->SR2 & 0b1 << BUSY_BIT_Pos)
-			bitStatus = SET;
-		else
-			bitStatus = RESET;
-		break;
+		hi2c->I2Cx->DR = (DevAddress << 1 | COMMAND);
 	}
-	case EV5:
+	// Need Enhancment
+	else if (Mode == _10BIT_ADD)
 	{
-		if (I2Cx->SR1 & 1 << SB_BIT_Pos)
+		unsigned int dummy_reg;
+		if (COMMAND == WRITE)
 		{
-			bitStatus = SET;
-			dummyRead = I2Cx->SR1;
+			unsigned char TempAddress = DevAddress;
+			TempAddress = ((DevAddress >> 8) & 0b11);
+			hi2c->I2Cx->DR = RESERVED_FRAME_10BIT_ADDRESS | (TempAddress << 1) | COMMAND;
+			// Wait Untill Header Send Reading
+			while(!READ_BIT(hi2c->I2Cx->SR1, ADD10_BIT_Pos));
+			// Clear ADD10 Bit Reading SR1 & Writing DR
+			dummy_reg = hi2c->I2Cx->SR1;
+			hi2c->I2Cx->DR = (DevAddress & 0xFF);
 		}
-		else
-			bitStatus = RESET;
-		break;
-	}
-	case EV6:
-	{
-		if (I2Cx->SR1 & (0b1 << ADDR_BIT_Pos))
+		else if (COMMAND == READ)
 		{
-			bitStatus = SET;
-			dummyRead = I2Cx->SR1;
-			dummyRead = I2Cx->SR2;
+
+			unsigned char TempAddress = DevAddress;
+			// Sending Header
+			TempAddress = ((DevAddress >> 8) & 0b11);
+			hi2c->I2Cx->DR = RESERVED_FRAME_10BIT_ADDRESS | (TempAddress << 1) | COMMAND;
+			// Wait Untill Header Send Reading
+			while(!READ_BIT(hi2c->I2Cx->SR1, ADD10_BIT_Pos));
+			// Clear ADD10 Bit Reading SR1 & Writing DR (Address)
+			dummy_reg = hi2c->I2Cx->SR1;
+			hi2c->I2Cx->DR = (DevAddress & 0xFF);
+
+			// Send Repeated Start
+			Generate_START(hi2c, RepeatedSTART);
+			// Polling Untill Repeated Start Send
+			while (!READ_BIT(hi2c->I2Cx->SR1, SB_BIT_Pos));
+
+			// Sending Header
+			TempAddress = ((DevAddress >> 8) & 0b11);
+			hi2c->I2Cx->DR = RESERVED_FRAME_10BIT_ADDRESS | (TempAddress << 1) | COMMAND;
 		}
-		else
-			bitStatus = RESET;
-		break;
-	}
-	case EV8_1:
-	{
-		if ( (I2Cx->SR1 & (1 << TxE_BIT_Pos)) && (I2Cx->SR2 & (0b111 << 0)) )
-			bitStatus = SET;
-		else
-			bitStatus = RESET;
-		break;
-	}
-
-	case EV8:
-	{
-		if (I2Cx->SR1 & (1 << TxE_BIT_Pos))
-			bitStatus = SET;
-		else
-			bitStatus = RESET;
-		break;
-	}
-	case EV8_2:
-	{
-		if ( (I2Cx->SR1 & (1 << TxE_BIT_Pos)) && ((I2Cx->SR1 & 1) << BTF_BIT_Pos) )
-			bitStatus = SET;
-		else
-			bitStatus = RESET;
-		break;
-	}
-	case EV7:
-	{
-		if (I2Cx->SR1 & 1 << RxNE_BIT_Pos)
-			bitStatus = SET;
-		else
-			bitStatus = RESET;
-		break;
-	}
 
 	}
-
-	return bitStatus;
 }
+
+static void Generate_STOP(I2C * hi2c, STOP_t STOP_Cond)
+{
+	if (STOP_Cond == WithSTOP)
+	{
+
+		SET_BIT(hi2c->I2Cx->CR1, STOP_BIT_Pos);
+	}
+}
+
+
+
+

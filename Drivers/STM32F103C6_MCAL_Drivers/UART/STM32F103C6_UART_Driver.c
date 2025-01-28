@@ -10,8 +10,8 @@
 #include "STM32F103C6_UART_Driver.h"
 
 
-static void USART_GPIO_TX_PINs(UART *UART_Conf);
-static void USART_GPIO_RX_PINs(UART *UART_Conf);
+static void USART_GPIO_TX_PINs(UART **UART_Conf);
+static void USART_GPIO_RX_PINs(UART **UART_Conf);
 
 void(* P_IRQ_CallBack[3])(void);
 
@@ -154,7 +154,7 @@ void USART_INIT(UART *UART_Conf)
 		PCLK = RCC_GetPCLK1Freq();
 	}
 
-
+	// Implement BRR Reg as Refer in DataSheet
 	Mantissa = PCLK / (16 * UART_Conf->BaudRate);
 	DIV = (PCLK * 100) / (16 * UART_Conf->BaudRate);
 	DIV -= (Mantissa * 100);
@@ -164,26 +164,22 @@ void USART_INIT(UART *UART_Conf)
 
 void USART_SendData(UART *UART_Conf, uint8_t *TxBuffer)
 {
-
-
+	// Send String Byte by Byte
 	while (*TxBuffer != '\0')
 	{
 		UART_Conf->UARTx->DR = *TxBuffer;
+		// Wait untill DR Be on Shift Reg to load The next Byte
 		while(!((UART_Conf->UARTx->SR) & (1<<7)));
 		TxBuffer++;
 	}
-
-	//	if (!((UART_Conf->UARTx->SR) & (1<<7)))
-
-	while(!((UART_Conf->UARTx->SR) & (1<<7)));
-
 }
 
 void USART_RecieveData(UART *UART_Conf, uint8_t *RxBuffer)
 {
-	if (!((UART_Conf->UARTx->CR1) & (1<<5)))
-		while(!((UART_Conf->UARTx->SR) & (1<<5)));
+	// Wait untill Recieve Data using Polling Mechanism
+	while(!((UART_Conf->UARTx->SR) & (1<<5)));
 
+	// Recieve data at RxBuffer
 	if (UART_Conf->Parity == UART_PARITY_DIS)
 	{
 		*RxBuffer = UART_Conf->UARTx->DR & 0xFF;
@@ -192,14 +188,18 @@ void USART_RecieveData(UART *UART_Conf, uint8_t *RxBuffer)
 	{
 		*RxBuffer = UART_Conf->UARTx->DR & 0x7F;
 	}
+
+	// Clear Bit to Recieve another Byte
 	UART_Conf->UARTx->SR &= ~(1<<5);
 }
 
-static void USART_GPIO_TX_PINs(UART *UART_Conf)
+static void USART_GPIO_TX_PINs(UART **UART_Conf)
 {
+
+	// Set Pins as Recommended for UART Periphral (TX)
 	GPIO_PinConfig_t PinUSART;
 
-	if ( (UART_Conf)->UARTx == USART1 )
+	if ( (*UART_Conf)->UARTx == USART1 )
 	{
 		//PA9 TX
 		PinUSART.GPIOx = GPIOA;
@@ -208,7 +208,7 @@ static void USART_GPIO_TX_PINs(UART *UART_Conf)
 		PinUSART.GPIO_OUTPUT_Speed = GPIO_SPEED_50M;
 		GPIO_INIT(&PinUSART);
 	}
-	else if ( (UART_Conf)->UARTx == USART2 )
+	else if ( (*UART_Conf)->UARTx == USART2 )
 	{
 		//PA2 TX
 		PinUSART.GPIOx = GPIOA;
@@ -217,7 +217,7 @@ static void USART_GPIO_TX_PINs(UART *UART_Conf)
 		PinUSART.GPIO_OUTPUT_Speed = GPIO_SPEED_50M;
 		GPIO_INIT(&PinUSART);
 	}
-	else if ( (UART_Conf)->UARTx == USART3 )
+	else if ( ((*UART_Conf))->UARTx == USART3 )
 	{
 		//PB10 TX
 		PinUSART.GPIOx = GPIOB;
@@ -228,11 +228,13 @@ static void USART_GPIO_TX_PINs(UART *UART_Conf)
 	}
 }
 
-static void USART_GPIO_RX_PINs(UART *UART_Conf)
+static void USART_GPIO_RX_PINs(UART **UART_Conf)
 {
+
+	// Set Pins as Recommended for UART Periphral (RX)
 	GPIO_PinConfig_t PinUSART;
 
-	if ( (UART_Conf)->UARTx == USART1 )
+	if ( (*UART_Conf)->UARTx == USART1 )
 	{
 		//PA10 RX
 		PinUSART.GPIOx = GPIOA;
@@ -241,7 +243,7 @@ static void USART_GPIO_RX_PINs(UART *UART_Conf)
 		PinUSART.GPIO_OUTPUT_Speed = GPIO_SPEED_50M;
 		GPIO_INIT(&PinUSART);
 	}
-	else if ( (UART_Conf)->UARTx == USART2 )
+	else if ( (*UART_Conf)->UARTx == USART2 )
 	{
 		//PA3 RX
 		PinUSART.GPIOx = GPIOA;
@@ -250,7 +252,7 @@ static void USART_GPIO_RX_PINs(UART *UART_Conf)
 		PinUSART.GPIO_OUTPUT_Speed = GPIO_SPEED_50M;
 		GPIO_INIT(&PinUSART);
 	}
-	else if ( (UART_Conf)->UARTx == USART3 )
+	else if ( (*UART_Conf)->UARTx == USART3 )
 	{
 		//PB11 RX
 		PinUSART.GPIOx = GPIOB;
@@ -261,24 +263,26 @@ static void USART_GPIO_RX_PINs(UART *UART_Conf)
 	}
 }
 
-//void USART_deINIT(UART *UART_Conf)
-//{
-//	if ( UART_Conf->UARTx == USART1 )
-//	{
-//		RCC_USART1_Reset();
-//		NVIC_Disable_USART1;
-//	}
-//	else if ( UART_Conf->UARTx == USART2 )
-//	{
-//		RCC_USART2_Reset();
-//		NVIC_Disable_USART2 ;
-//	}
-//	else if ( UART_Conf->UARTx == USART3 )
-//	{
-//		RCC_USART3_Reset();
-//		NVIC_Disable_USART3 ;
-//	}
-//}
+void USART_deINIT(UART *UART_Conf)
+{
+
+	// Disable USART Periphral
+	if ( UART_Conf->UARTx == USART1 )
+	{
+		RCC_USART1_CLK_DIS;
+		NVIC_Disable_USART1;
+	}
+	else if ( UART_Conf->UARTx == USART2 )
+	{
+		RCC_USART2_CLK_DIS;
+		NVIC_Disable_USART2;
+	}
+	else if ( UART_Conf->UARTx == USART3 )
+	{
+		RCC_USART3_CLK_DIS;
+		NVIC_Disable_USART3;
+	}
+}
 
 // ISR
 void USART1_IRQHandler()

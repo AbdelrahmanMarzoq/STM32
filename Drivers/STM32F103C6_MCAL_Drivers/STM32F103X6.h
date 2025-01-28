@@ -64,6 +64,17 @@
 //            USART1
 #define USART1_BASE						 (0x40013800UL)
 
+//            I2C1
+#define I2C1_BASE						 (0x40005400UL)
+
+//            I2C2
+#define I2C2_BASE						 (0x40005800UL)
+
+
+//            SPI1
+#define SPI1_BASE						 (0x40013000UL)
+
+
 							/*******************************************/
 							/*    Base addresses for APB1 Periphrals   */
 							/*******************************************/
@@ -73,6 +84,9 @@
 
 //            USART3
 #define USART3_BASE						 (0x40004800UL)
+
+//            SPI2
+#define SPI2_BASE						 (0x40003800UL)
 
 							/*******************************************/
 							/*         Peripheral register : RCC       */
@@ -149,6 +163,40 @@ typedef struct
 	volatile uint32_t  GTPR;
 }USART_Periphral;
 
+
+							/*******************************************/
+							/*         Peripheral register : I2C       */
+							/*******************************************/
+typedef struct
+{
+	volatile uint32_t  CR1;
+	volatile uint32_t  CR2;
+	volatile uint32_t  OAR1;
+	volatile uint32_t  OAR2;
+	volatile uint32_t  DR;
+	volatile uint32_t  SR1;
+	volatile uint32_t  SR2;
+	volatile uint32_t  CCR;
+	volatile uint32_t  TRISE;
+}I2C_Periphral;
+
+							/*******************************************/
+							/*         Peripheral register : SPI       */
+							/*******************************************/
+
+typedef struct
+{
+	volatile uint32_t  CR1;
+	volatile uint32_t  CR2;
+	volatile uint32_t  SR;
+	volatile uint32_t  DR;
+	volatile uint32_t  CRCPR;
+	volatile uint32_t  RXCRCR;
+	volatile uint32_t  TXCRCR;
+	volatile uint32_t  I2SCFGR;
+	volatile uint32_t  I2SPR;
+}SPI_Periphral;
+
 							/*******************************************/
 							/*         Peripheral Instants: GPIO       */
 							/*******************************************/
@@ -187,8 +235,17 @@ typedef struct
 
 
 
+							/*******************************************/
+							/*         Peripheral Instants: I2C        */
+							/*******************************************/
+#define I2C1					((I2C_Periphral *)I2C1_BASE)
+#define I2C2					((I2C_Periphral *)I2C2_BASE)
 
-
+							/*******************************************/
+							/*         Peripheral Instants: SPI        */
+							/*******************************************/
+#define SPI1					((SPI_Periphral *)SPI1_BASE)
+#define SPI2					((SPI_Periphral *)SPI2_BASE)
 
 
 
@@ -220,10 +277,23 @@ typedef struct
 #define EXTI14_IRQ			EXTI10_15_IRQ
 #define EXTI15_IRQ			EXTI10_15_IRQ
 
+
+// USART IRQ Number
 #define USART1_IRQ			37
 #define USART2_IRQ			38
 #define USART3_IRQ			39
 
+
+// I2C IRQ Number
+#define I2C1_EV_IRQ			31
+#define I2C1_ER_IRQ			32
+
+#define I2C2_EV_IRQ			33
+#define I2C2_ER_IRQ			34
+
+// SPI IRQ Number
+#define  SPI1_IRQ			35
+#define  SPI2_IRQ			36
 
 
 						/*******************************************/
@@ -262,6 +332,16 @@ typedef struct
 #define NVIC_Enable_USART2               (NVIC_ISER1 |= 1 << (USART2_IRQ - 32))
 #define NVIC_Enable_USART3               (NVIC_ISER1 |= 1 << (USART3_IRQ - 32))
 
+//                               Enable I2C_IRQ
+#define NVIC_Enable_EV_I2C1              (NVIC_ISER0 |= 1 <<  I2C1_EV_IRQ	   )
+#define NVIC_Enable_ER_I2C1              (NVIC_ISER1 |= 1 << (I2C1_ER_IRQ - 32))
+#define NVIC_Enable_EV_I2C2              (NVIC_ISER1 |= 1 << (I2C2_EV_IRQ - 32))
+#define NVIC_Enable_ER_I2C2              (NVIC_ISER1 |= 1 << (I2C2_ER_IRQ - 32))
+
+
+//                               Enable SPI_IRQ
+#define NVIC_Enable_SPI1              (NVIC_ISER1 |= 1 << (SPI1_IRQ - 32))
+#define NVIC_Enable_SPI2              (NVIC_ISER1 |= 1 << (SPI2_IRQ - 32))
 
 
 /**********************************  Disable  *************************************/
@@ -280,7 +360,15 @@ typedef struct
 #define NVIC_Disable_USART3              (NVIC_ICER1 |= 1 << (USART3_IRQ - 32))
 
 
+//                               Disable I2C_IRQ
+#define NVIC_Disable_EV_I2C1             (NVIC_ISER0 |= 1 <<  I2C1_EV_IRQ      )
+#define NVIC_Disable_ER_I2C1             (NVIC_ISER1 |= 1 << (I2C1_ER_IRQ - 32))
+#define NVIC_Disable_EV_I2C2             (NVIC_ISER1 |= 1 << (I2C2_EV_IRQ - 32))
+#define NVIC_Disable_ER_I2C2             (NVIC_ISER1 |= 1 << (I2C2_ER_IRQ - 32))
 
+//                               Disable SPI_IRQ
+#define NVIC_Disable_SPI1          	 	 (NVIC_ISER1 |= 1 << (SPI1_IRQ - 32))
+#define NVIC_Disable_SPI2           	 (NVIC_ISER1 |= 1 << (SPI2_IRQ - 32))
 
 
 

@@ -16,8 +16,10 @@ RM := rm -rf
 -include STM32F103C6_MCAL_Drivers/I2C/subdir.mk
 -include STM32F103C6_MCAL_Drivers/GPIO/subdir.mk
 -include STM32F103C6_MCAL_Drivers/EXTI/subdir.mk
+-include STM32F103C6_MCAL_Drivers/ADC/subdir.mk
 -include HAL_Drivers/LCD/subdir.mk
 -include HAL_Drivers/Keypad/subdir.mk
+-include HAL_Drivers/EEPROM/subdir.mk
 -include HAL_Drivers/7seg/subdir.mk
 -include subdir.mk
 -include objects.mk
@@ -38,7 +40,7 @@ endif
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXECUTABLES += \
-Drivers.elf \
+Drivers.axf \
 
 SIZE_OUTPUT += \
 default.size.stdout \
@@ -51,11 +53,11 @@ Drivers.bin \
 
 
 # All Target
-all: Drivers.elf secondary-outputs
+all: Drivers.axf secondary-outputs
 
 # Tool invocations
-Drivers.elf: $(OBJS) $(USER_OBJS) D:\Abdo2\Embedded\ System\Kerolos\Drivers\STM32F103C6TX_FLASH.ld
-	arm-none-eabi-gcc -gdwarf-2 -o "Drivers.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"D:\Abdo2\Embedded System\Kerolos\Drivers\STM32F103C6TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Drivers.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Drivers.axf: $(OBJS) $(USER_OBJS) D:\Abdo2\Embedded\ System\Kerolos\Drivers\STM32F103C6TX_FLASH.ld
+	arm-none-eabi-gcc -gdwarf-2 -o "Drivers.axf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"D:\Abdo2\Embedded System\Kerolos\Drivers\STM32F103C6TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Drivers.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
